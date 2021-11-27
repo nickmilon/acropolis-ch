@@ -1,0 +1,60 @@
+{
+  "name": "acropolis-ch",
+  "version": "1.0.1",
+  "description": "node clickhouse client",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "null": "echo \"Error: null\" && exit 1",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles",
+    "test1": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles -t 'test1'",
+    "testWatch": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles --watch",
+    "examples": "node lib/scripts/examples.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nickmilon/acropolis-ch.git"
+  },
+  "keywords": [
+    "node",
+    "clickhouse",
+    "driver",
+    "client",
+    "utilities"
+  ],
+  "author": {
+    "name": "@nickmilon",
+    "email": "nickmilon@geognos.com",
+    "url": "https://stackoverflow.com/users/199352/nickmilon"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/nickmilon/acropolis-ch/issues"
+  },
+  "homepage": "https://github.com/nickmilon/acropolis-ch#readme",
+  "engines": {
+    "node": ">=16.10.0"
+  },
+  "jest": {
+    "collectCoverage": false,
+    "testTimeout": 80000,
+    "verbose": true,
+    "bail": 1,
+    "testEnvironment": "jest-environment-node",
+    "transform": {},
+    "coverageReporters": [
+      "html"
+    ],
+    "globals": {
+      "__inspect__": false
+    }
+  },
+  "dependencies": {
+    "acropolis-nd": "github:nickmilon/acropolis-nd",
+    "undici": "^4.7.0"
+  },
+  "temp": {
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles",
+    "got": "^11.8.2"
+  }
+}
