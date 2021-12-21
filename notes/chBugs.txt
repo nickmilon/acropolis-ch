@@ -30,3 +30,4 @@ const results = await Promise.all([
 => Code: 373. DB::Exception: Session is locked by a concurrent client. (SESSION_IS_LOCKED) (version 21.11.3.6 (official build))
 reported but closed !? https://github.com/ClickHouse/ClickHouse/issues/4003 
 ==============================================================
+create table twitter.edgesV81 as twitter.edgesV8  does NOT copy projections

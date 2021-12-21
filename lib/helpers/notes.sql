@@ -1,8 +1,14 @@
 <!--cSpell:disable -->
 
+------------------------------------------ copy table
+SELECT partition FROM system.parts WHERE database = 'twitter' and table = 'edgesV8' and active = 1 GROUP BY partition
+ALTER TABLE dst_table ATTACH PARTITION '2019-01-01' FROM source_table;
+ALTER TABLE table2 REPLACE PARTITION partition_expr FROM table1
+ALTER TABLE twitter.edgesV81 REPLACE PARTITION tuple() FROM twitter.edgesV8
+---------------------------------------------------------------------------------
 random dates https://altinity.com/blog/harnessing-the-power-of-clickhouse-arrays-part-3
 
-44423
+SELECT getSetting('receive_timeout')
 INDEX d1_null_idx assumeNotNull(d1_null) TYPE minmax GRANULARITY 1
 INDEX idx_parent parent TYPE set(1000) GRANULARITY 8192
 INDEX idx_parent parent TYPE minmax GRANULARITY 3  not bad  GRANULARITY 1 is better 
@@ -55,6 +61,7 @@ FROM graph100k.Graph
 GROUP BY parent 
 
 
+
 CREATE LIVE VIEW graph1m.LVparentCount AS
 SELECT
     child,
@@ -62,7 +69,185 @@ SELECT
 FROM graph1m.Graph
 GROUP BY child
 
+
+SELECT
+    type,
+    child,
+    sum(sign) AS count
+FROM twitter.edgesV7
+GROUP BY
+    type,
+    child
+ORDER BY count DESC
+
+----------------------------
+CREATE MATERIALIZED VIEW twitter.viewParents
+ENGINE = SummingMergeTree
+ORDER BY child
+POPULATE
+AS
+SELECT child,  count(sign) AS count
+FROM twitter.edgesV7
+GROUP BY type, child
+
+
+CREATE MATERIALIZED VIEW twitter.viewParents
+ENGINE = SummingMergeTree
+PARTITION BY dtCr
+ORDER BY (child, dtCr) POPULATE AS
+SELECT
+    child,
+    toYYYYMM(dtCr) AS dtCr,
+    count(sign) AS count
+FROM twitter.edgesV7
+GROUP BY
+    child,
+    dtCr
+
+------------------------
+CREATE TABLE twitter.parentsCount
+(
+    `type` UInt16,
+    `child` UInt32,
+    `count` UInt32,
+    PROJECTION proj_count
+    (
+        SELECT *
+        ORDER BY (type, count)
+    )
+)
+ENGINE = SummingMergeTree
+ORDER BY child
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& works
+CREATE TABLE twitter.parentsCount
+(
+    type UInt16,
+    `child` UInt32,
+    `count` UInt64,
+     PROJECTION proj_count (SELECT child, sum(count) group by type, child)
+)
+ENGINE = SummingMergeTree
+ORDER BY (type, child)
+
+CREATE MATERIALIZED VIEW twitter.parentsCountView TO twitter.parentsCount AS
+SELECT
+    type,
+    child,
+    sum(sign) AS count
+FROM twitter.edgesV7
+GROUP BY type, child
+
+SELECT
+    type,
+    parent,
+    sum(sign) AS count
+FROM twitter.edgesV7
+GROUP BY
+    type,
+    parent
+ORDER BY count DESC
+LIMIT 10
+  
+ALTER TABLE twitter.edgesV8
+    ADD PROJECTION proj_parents
+    (
+        SELECT 
+            type,
+            child,
+            sum(sign),
+            toDate(dtCr)
+        GROUP BY 
+            type,
+            child,
+            dtCr
+    )
+
+
+
+insert into  twitter.parentsCountView SELECT child, sign, dtCr FROM twitter.edgesV7
+
+ if we want OPTIMIZE TABLE twitter.parentsCount FINAL
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+ALTER TABLE uk_price_paid MATERIALIZE PROJECTION projection_by_year_district_town SETTINGS mutations_sync = 1;
+
+
+CREATE MATERIALIZED VIEW twitter.parentsLtd
+ENGINE = AggregatingMergeTree() ORDER BY child
+AS SELECT
+    child,
+    sumState(sign) AS parents
+FROM twitter.edgesV7Ltd
+GROUP BY child
+
+
+SELECT
+    sumMerge(parents) AS smp
+FROM twitter.parentsLtd
+GROUP BY child
+ORDER BY child
+LIMIT 10
+
+CREATE MATERIALIZED VIEW twitter.parentsLtdSA
+ENGINE = AggregatingMergeTree() ORDER BY child
+AS SELECT
+    child,
+    parents SimpleAggregateFunction(sum, UInt64) 
+FROM twitter.edgesV7Ltd
+GROUP BY child
+
+CREATE TABLE simple (id UInt64, val SimpleAggregateFunction(sum, Double)) ENGINE=AggregatingMergeTree ORDER BY id;
+
+
+-------------------------------------
  
+CREATE TABLE twitter.edgesV7
+(
+    `type` UInt16,
+    `parent` UInt32,
+    `child` UInt32,
+    `sign` Int8,
+    `dtCr` DateTime,
+    `pcSum` UInt64 MATERIALIZED parent + child,
+    PROJECTION proj_reversedPrimary
+    (
+        SELECT *
+        ORDER BY (type, parent, child, dtCr)
+    ),
+    PROJECTION proj_parents
+    (
+        SELECT 
+            parent,
+            sum(sign) AS children
+        GROUP BY parent
+    ),
+    PROJECTION proj_children
+    (
+        SELECT 
+            child,
+            sum(sign) AS parents
+        GROUP BY child
+    )
+)
+ENGINE = MergeTree
+PRIMARY KEY (type, child, parent, dtCr)
+ORDER BY (type, child, parent, dtCr)
+SAMPLE BY child
+SETTINGS index_granularity = 8192
+
+SELECT
+    type,
+    child,
+    sum(sign) AS count
+FROM twitter.edgesV7
+GROUP BY
+    type,
+    child
+ORDER BY count DESC
+LIMIT 10
+
+
+
 --------------------------------
 fucked 
 SELECT
@@ -479,6 +664,8 @@ OPTIMIZE TABLE  FINAL
 NSERT INTO twitter.edgesV2  
 SELECT parent, child, -1 as sign, date_add(day,1, dtCr) AS dtCr  FROM twitter.edgesV2 SAMPLE 0.001 LIMIT 1000000
 
+----------------------------------------------- mutual xx $$1
+ 
 ----------------------------------------- mutual fast but takes no account of sign ? 
 WITH 21515805 AS target
 SELECT count() AS count
@@ -815,15 +1002,19 @@ Elapsed: 1.873 sec. Processed 2.73 million rows, 24.55 MB (1.46 million rows/s.,
 cashed   0.2
   PrimaryKey Keys:  parent  
 --------------------------------------------------------------
-CREATE TABLE twitter.edgesV6
+CREATE TABLE twitter.edgesV7
 (
-    `feed` UInt16,
+    `type` UInt16,
     `parent` UInt32,
     `child` UInt32,
     `sign` Int8,
     `dtCr` DateTime,
-    PROJECTION proj_parent_child
-    ( SELECT * ORDER BY (feed, parent, child)),
+    `pcSum` UInt64 MATERIALIZED parent + child,
+    PROJECTION proj_reversedPrimary
+    (
+        SELECT *
+        ORDER BY (type, parent, child, dtCr)
+    ),
     PROJECTION proj_parents
     (
         SELECT 
@@ -840,10 +1031,10 @@ CREATE TABLE twitter.edgesV6
     )
 )
 ENGINE = MergeTree
-PRIMARY KEY (feed, child, parent)
-ORDER BY (feed, child, parent)
+PRIMARY KEY (type, child, parent, dtCr)
+ORDER BY (type, child, parent, dtCr)
 SAMPLE BY child
-SETTINGS index_granularity = 8192
+SETTINGS index_granularity = 8192 
 
 CREATE VIEW twitter.edgesV5vParents AS
 SELECT

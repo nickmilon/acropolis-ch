@@ -17,7 +17,6 @@ import { sqlPrettify } from '../lib/sql/fragments.js';
 import { limitOffset, SELECT, SELECTraw } from '../lib/sql/select.js';
 import { createContext, contextStatementsSet, contextStatementsGet, contextStatementsAppend } from '../lib/context.js';
 import { formatStr } from '../lib/sql/varsCH/formats.js';
-import { JSONstringifyCustom, toValuesStr, toColumnNamesStr, createParserFromMeta, resultsParse, columnsFromStructStr, rxDefaultRowMach } from '../lib/helpers/transforms.js';
 import { PageScrollExample, scrollSelect } from '../lib/solutions/pagination.js';
 import { ReadableArrOrFn, TransformParseRaw } from '../lib/helpers/streams.js';
 import * as auxillary from '../lib/sql/auxillary.js';
@@ -57,7 +56,7 @@ const logger = (logLevel === 'silent') ? consolDummy : new ConLog('debug', { inc
 
 // eslint-disable-next-line no-console
 console.log(`set logLevel variable in config.js in one of available Levels: ${ConLog.availableLevelsStr()}`);
-
+ 
 describe('sql statements', () => {
   let client;
   let graph;
@@ -66,11 +65,10 @@ describe('sql statements', () => {
   let data;
   const sqlExec = async (fn) => {
     result = await fn;
-    // inspectIt({ result }, logger, sql, { breakLength: 140 });
     expect(result.statusCode).toBe(200);
     return result;
   };
-  // client.post(query, sqlStr, expStatus = 200);
+   
   const sqlLog = (str) => `-----\n[${sqlPrettify(str)}]\n----`;
   const req = async (sql, bodyData = '', statusCodeExpected = 200) => {
     logger.log(sqlLog(sql));
@@ -121,6 +119,7 @@ describe('sql statements', () => {
     logger.inspectIt({ body: result.body, pg }, 'scrolling ');
     const res10 = result.body.data.flat();
     vector = 1;
+     
     pg = {}; // reset page object;
     for (let index = 0; index < 10; index += 1) {  // scroll from beginning one row at a time
       result = await graph.parents(child, vector, pg.next, { FORMAT: formatStr.JSONCompact }); // first row will default to undefined class will handle it
@@ -128,4 +127,5 @@ describe('sql statements', () => {
       pg = await scrollP.getPageObj(result.body.data, pg, vector);
     }
   });
+   
 });

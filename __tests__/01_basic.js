@@ -79,12 +79,10 @@ describe('basic functionality', () => {
     result = await sqlExec(client.post(`CREATE DATABASE IF NOT EXISTS ${testDbName}`));
     result = await sqlExec(client.post(`DROP TABLE IF EXISTS ${ns}`));
     result = await sqlExec(client.post(sqlTests.createTableObjRndFlat({ nameSpace: ns })));
-    let jsonArr = rndObjArr(1, 10);
+    const jsonArr = rndObjArr(1, 10);
     // eslint-disable-next-line no-param-reassign
-    jsonArr.forEach((x) => { x.dt = x.dt.toISOString().substring(0, 19); x.dtCr = x.dtCr.toISOString().substring(0, 19); }); // strip Z from dates;
-    jsonArr = JSON.stringify(jsonArr);
-    // eslint-disable-next-line no-unused-vars
-    result = await sqlExec(client.post(`INSERT INTO ${ns} FORMAT JSONEachRow`, jsonArr));
+    jsonArr.forEach((x) => { x.dt = x.dt.getTime(); x.dtCr = x.dtCr.toISOString().substring(0, 19); }); // strip Z from dates; or cast to int
+    await sqlExec(client.post(`INSERT INTO ${ns} FORMAT JSONEachRow`, JSON.stringify(jsonArr)));
   });
 
   it('pipeInOut', async () => {
@@ -164,12 +162,5 @@ describe('basic functionality', () => {
     const sumOfEventsTypes = Object.keys(counter).length;
     expect(sumOfEvents).toBe(4);
     expect(sumOfEventsTypes).toBe(3); // { Created: 1, Request: 2, Error: 1, Closed: 1 }
-  });
-
-  it('work', async () => {
-    // const display = (name, event, args) => inspectIt({ args }, logger, `====== ${name} on ${event} =====`, { dept: 40, breakLength: 140 });
-    // const display = (name, event, ...args) => console.log({ name, event, args });
-    // const localClient = new UndiciCH(confCH.uri, confCH.credentials, { connections: 1 });
-    // client.events.onAll(display);
   });
 });

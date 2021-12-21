@@ -15,7 +15,7 @@ import { sqlPrettify } from '../lib/sql/fragments.js';
 import { limitOffset, SELECT, SELECTraw } from '../lib/sql/select.js';
 import { createContext, contextStatementsSet, contextStatementsGet, contextStatementsAppend } from '../lib/context.js';
 import { formatStr } from '../lib/sql/varsCH/formats.js';
-import { JSONstringifyCustom, toValuesStr, toColumnNamesStr, createParserFromMeta, resultsParse, columnsFromStructStr, rxDefaultRowMach } from '../lib/helpers/transforms.js';
+import { JSONstringifyCustom, toValuesStr, toColumnNamesStr, createParserFromMeta, columnsFromStructStr, rxDefaultRowMach } from '../lib/helpers/transforms.js';
 import { PageScrollExample, scrollSelect } from '../lib/solutions/pagination.js';
 import { ReadableArrOrFn, TransformParseRaw } from '../lib/helpers/streams.js';
 import * as auxillary from '../lib/sql/auxillary.js';
@@ -64,16 +64,15 @@ let result;
 let sqlStr;
 
 class GraphBM extends Graph {
-  constructor(client, dbName = 'twitter', { tbEdges = 'edges', idType = 'UInt32', parentAlias = 'following', childAlias = 'followers' } = {}) {
+  constructor(client, dbName = 'twitter', { tbEdges = 'edges', idType = 'UInt32', parentAlias = 'followers', childAlias = 'following' } = {}) {
     super(client, dbName, { idType, parentAlias, childAlias });
     this.ns.edges = `${dbName}.${tbEdges}`;
     this.client.defaultFlags = ['resolve', 'throwClient', 'throwNon200'];
   }
 
-  async bmParents({ child = 23933989, vector = 100000 } = {}) {
+  async bmParents(child = 23934178, { vector = 100000 } = {}) {
     // BTW demonstrates scrolling usefulness as every new call has < elapsed time
     const scrollP = new ScrollOnColumn('parent', 'AND');
-    const scrollC = new ScrollOnColumn('child', 'AND');
     let pg = {};
     let sumStats;
     logger.time('parents');
@@ -86,6 +85,26 @@ class GraphBM extends Graph {
       sumStats = sumsCounter({ hops: 1, rows, ...statistics }, sumStats);
       // console.log(`hops:${hops} stats:${statistics.toString()}, sum${sumStats.toString()}`)
       pg = await scrollP.getPageObj(data, pg, vector);
+      logger.info('stats', statistics);
+    } while (pg.position === 0);
+    logger.timeEnd('parents');
+    return sumStats;
+  }
+
+  async bmChildren(parent = 23933989, { vector = 100000 } = {}) {
+    const scrollC = new ScrollOnColumn('child', 'AND');
+    let pg = {};
+    let sumStats;
+    logger.time('parents');
+    // sqlStr = graph.gSql.parents(child, vector, pg.next);
+    // console.log(sqlStr);
+    do {
+      // sqlStr = graph.gSql.parents(child, vector, pg.next);
+      result = await this.children(parent, vector, pg.next, { FORMAT: formatStr.JSONCompact });
+      const { data, rows, statistics } = result.body;
+      sumStats = sumsCounter({ hops: 1, rows, ...statistics }, sumStats);
+      // console.log(`hops:${hops} stats:${statistics.toString()}, sum${sumStats.toString()}`)
+      pg = await scrollC.getPageObj(data, pg, vector);
       logger.info('stats', statistics);
     } while (pg.position === 0);
     logger.timeEnd('parents');
@@ -117,7 +136,7 @@ class GraphBM extends Graph {
       FORMAT JSONEachRow 
     `;
     logger.time('memoryTableAndResults');
-    result = await this.client.dirtyMemTable('del2', result, sqlStr);
+    result = await this.client.quickTableMemory('del2', result, sqlStr);
     logger.timeEnd('memoryTableAndResults');
     return result.body;
   }
@@ -130,9 +149,7 @@ class GraphBM extends Graph {
   }
 }
 
-const graph = new GraphBM(new ClientExt(confCH.uri, confCH.credentials, { connections: 100 }), 'twitter', { tbEdges: 'edgesV6' });
-export { graph };
-
+export const graph = new GraphBM(new ClientExt(confCH.uri, confCH.credentials, { connections: 100 }), 'twitter', { tbEdges: 'edgesV7' });
 
 
 /*
@@ -201,6 +218,10 @@ export { graph };
 │ 21523985 │   99102 │
 │ 21515684 │   97050 │
 └──────────┴─────────┘
+v7
+child   23934178 │ parents  503675
+parent  23933989 | children 505613
+
 
 top Mutual
 [

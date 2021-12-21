@@ -11,7 +11,7 @@ const confCH = { // clickhouse
   dbs: ['work', 'test'], // will be created IF NOT EXISTS and verifyServer === true
 };
 const runOptions = {
-  tests: { logLevel: 'info' },
+  tests: { logLevel: 'debug' },
 };
 
 export { confCH, runOptions };

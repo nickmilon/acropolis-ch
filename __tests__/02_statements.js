@@ -1,3 +1,7 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable brace-style */
 /* eslint-disable object-curly-newline */
 /* eslint-disable camelcase */
 /* eslint-disable function-paren-newline */
@@ -8,6 +12,8 @@
 /* eslint-disable no-undef */
 
 import { setTimeout as setTimeoutAsync } from 'timers/promises';
+import { setInterval } from 'timers';
+import { createWriteStream } from 'fs';
 import { finished, pipeline } from 'stream/promises';
 import { ConLog, consolDummy } from '../../acropolis-nd/lib/scripts/nodeOnly.js';
 import { UndiciCH, flagsCH } from '../lib/client.js';
@@ -16,10 +22,11 @@ import { sqlPrettify } from '../lib/sql/fragments.js';
 import { limitOffset, SELECT, SELECTraw } from '../lib/sql/select.js';
 import { createContext } from '../lib/context.js';
 import { formatStr } from '../lib/sql/varsCH/formats.js';
-import { JSONstringifyCustom, toValuesStr, toColumnNamesStr, createParserFromMeta, resultsParse, columnsFromStructStr, rxDefaultRowMach } from '../lib/helpers/transforms.js';
+import { castTransform, castData, castResponse, dataTransform, metaTrim, toValuesStr, columnsFromStructStr, rxDefaultRowMach } from '../lib/helpers/transforms.js';
 import { PageScrollExample, scrollSelect } from '../lib/solutions/pagination.js';
 import { ReadableArrOrFn, TransformParseRaw } from '../lib/helpers/streams.js';
-import * as auxillary from '../lib/sql/auxillary.js';
+import * as Pythagoras from '../../acropolis-nd/lib/Pythagoras.js';
+// import * as auxillary from '../lib/sql/auxillary.js';
 import { settingsCH } from '../lib/sql/varsCH/settings.js';
 import {
   DROP_TABLE,
@@ -37,16 +44,13 @@ import {
   INSERT_INTO,
 } from '../lib/sql/basic.js';
 
-import { sqlTests, engine, simpleStructAll, simpleStructAllNullable, mostTypesStruct } from '../lib/structures/tests.js';
-import { on } from 'events';
- 
- 
-
-
+import { engine } from '../lib/structures/tests.js';
+import { coreTypes } from '../lib/sql/varsCH/types.js';
+import { isFloat32Array } from 'util/types';
 
 const logLevel = runOptions?.tests?.logLevel || 'log';
 
-const logger = (logLevel === 'silent') ? consolDummy : new ConLog('debug', { inclTS: true });
+const logger = (logLevel === 'silent') ? consolDummy : new ConLog(logLevel, { inclTS: true });
 
 // eslint-disable-next-line no-console
 console.log(`set logLevel variable in config.js in one of available Levels: ${ConLog.availableLevelsStr()}`);
@@ -57,22 +61,15 @@ describe('sql statements', () => {
   let sqlStr;
   let data;
   const testDb = 'testCH';
-  const NSnumbers = `${testDb}.numbers`;
-  const NSobjRndFlat = `${testDb}.objRndFlat`;
   const sumOfNaturalNumbers = (n) => (n * (n + 1)) / 2;
-  const sqlExec = async (fn) => {
-    result = await fn;
-    // inspectIt({ result }, logger, sql, { breakLength: 140 });
-    expect(result.statusCode).toBe(200);
-    return result;
-  };
   // client.post(query, sqlStr, expStatus = 200);
   const sqlLog = (str) => `-----\n[${sqlPrettify(str)}]\n----`;
   const req = async (sql, bodyData = '', statusCodeExpected = 200) => {
     logger.log(sqlLog(sql));
     result = await client.request(sql, bodyData, { flags: flagsCH.flagsToNum(['resolve']) });
     if (result.statusCode !== statusCodeExpected) {
-      logger.inspectIt({ sql, bodyData, result, statusCodeExpected }, 'req');
+      logger.inspectIt({ bodyData, result, statusCodeExpected }, 'req');
+      logger.log(sql);
     }
     expect(result.statusCode).toBe(statusCodeExpected);
     return result;
@@ -92,6 +89,7 @@ describe('sql statements', () => {
 
   beforeAll(async () => {
     client = new UndiciCH(confCH.uri, confCH.credentials, { connections: 10 });
+    // client.defaultFlags = ['resolve', 'throwClient', 'throwNon200']; 
     await req(CREATE_DATABASE(testDb));
   });
 
@@ -102,7 +100,7 @@ describe('sql statements', () => {
     await setTimeoutAsync(100); // give it some time if prints are pending
   });
 
-  it('test1', async () => {
+  it('Pipe Etc', async () => {
     const nsTable1 = `${testDb}.Stream1`;
     const nsTable2 = `${testDb}.Stream2`;
     const rowsCount = 100000;
@@ -177,7 +175,7 @@ describe('sql statements', () => {
       const resultReader = await client.request(sqlStr, '', { flags: 0 });
       await pipeline(resultReader.body, transformStream); // process.stdout)
       resultsOut = await resultsOut; // if we want to check results do an await here after stream ends;
-      if (resultsOut.statusCode !== 200) { logger.dir({ resultsOut })}
+      if (resultsOut.statusCode !== 200) { logger.dir({ resultsOut });}
       expect(resultsOut.statusCode).toBe(200);
       return { counters: transformStream.counters };
     };
@@ -208,7 +206,6 @@ describe('sql statements', () => {
     const crcObj1 = result.body;  // save it to compare later with table2
 
     const parserFormatsAvailable = rxDefaultRowMach(undefined, true).filter((x) => (!x.includes('Strings')));
-    // exclude JSONStringsEachRow JSONCompactStringsEachRow  as don't work with randomStrings
     // eslint-disable-next-line no-restricted-syntax
     for (const format of parserFormatsAvailable) {
       const msg = `scanStream ${format.padEnd(20)} rows: ${rowsCount}`;
@@ -256,11 +253,12 @@ describe('sql statements', () => {
     } while (pg.position !== -1); // till we reach start approaching from end
     expect(Object.keys(counter).length).toBe(20); // we visited all records at least once (actually 2 except last page forward)
   });
+
   it('mutations', async () => {
     const recCnt = 1000000;
     const tbName = 'mutations';
     await req(DROP_TABLE(testDb, tbName));
-    sqlStr = CREATE_TABLE_fromSelect(testDb, tbName, '(id Int32, str String)', engine, `number as id, 'foo' as str FROM numbers(1, ${recCnt})`);
+    sqlStr = CREATE_TABLE_fromSelect(testDb, tbName, '(id Int32, str String)', `number as id, 'foo' as str FROM numbers(1, ${recCnt})`, { ENGINE: engine });
     await req(sqlStr);
     result = await check(SELECT('COUNT(*)', { FROM: `${testDb}.${tbName}`, WHERE: 'id >= 1', FORMAT: formatStr.JSONCompact }), 1, recCnt.toString());
     sqlStr = ALTER_TABLE_DELETE(testDb, tbName, 'id > 100000'); // 900000 delete mutations left with 10000 records
@@ -273,70 +271,135 @@ describe('sql statements', () => {
     result = await check(SELECT('COUNT(*)', { FROM: `${testDb}.${tbName}`, WHERE: 'str = \'bar\'', FORMAT: formatStr.JSONCompact }), 1, '50000');
   });
 
-  it('typeConversions', async () => {
-    let context;
-    let values = 1;
-    const aDate = new Date('2021-11-01T02:03:04.200Z');
-    const dataJS = {
-      // id: 1, UInt8: 2 ** 7, UInt64: BigInt(2n ** 63n).toString()
-      id: 1,
-      Bool: true,
-      UInt8: (2 ** 8) - 1,                            // [0 : 255]
-      UInt16: (2 ** 16) - 1,                          // [0 : 65535]
-      UInt32: (2 ** 32) - 1,                          // [0 : 4294967295]
-      UInt64: (BigInt(2n ** 64n) - 1n),               // [0 : 18446744073709551615]
-      UInt128: (BigInt(2n ** 128n) - 1n),             // [0 : 340282366920938463463374607431768211455]
-      UInt256: (BigInt(2n ** 256n) - 1n),             // [0 : 115792089237316195423570985008687907853269984665640564039457584007913129639935]
-      Int8: -1 * (2 ** 7),                            // [-128 : 127]
-      Int16: -1 * (2 ** 15),                          // [-32768 : 32767]
-      Int32: -1 * (2 ** 31),                          // [-2147483648 : 2147483647]
-      Int64: (-1n * BigInt(2n ** 63n)),               // [-9223372036854775808 : 9223372036854775807]
-      Int128: (BigInt(2n ** 127n) - 1n),              // [-170141183460469231731687303715884105728 : 170141183460469231731687303715884105727]
-      Int256: (BigInt(2n ** 255n) - 1n),              // [-57896044618658097711785492504343953926634992332820282019728792003956564819968 ]
-      Float32: Math.PI,
-      Float64: Math.PI,
-      String: 'foo',
-      UUID: '61f0c404-5cb3-11e7-907b-a6006ad3dba0',
-      // Date: aDate,    // will not work with Json
-      // Date32: aDate,  // will not work with values and Json
-      DateTime: aDate,
-      DateTime64: aDate,
-      IPv4: '192.168.0.255',
-      IPv6: '2a02:e980:1e::1',
+  it('test1', async () => { // typeConversions
+    const allTypesNS = `${testDb}.allTypes`;
+    let response;
+    const coreTypesStruct = () => {
+      // CH returns date strings according to timezone;
+      const convertToUTC = (col) => {
+        if (col === 'DateTime') { return `${col}('UTC')`; }
+        if (col === 'DateTime64') { return `${col}(3, 'UTC')`; }
+        return col;
+      };
+      const schema = Object.keys(coreTypes).map((k) => [k, `${convertToUTC(k)}`]);
+      // schema = [['id', 'UInt32'], ...schema];
+      return `(${schema.map(([k, v]) => `\ncol_${k} ${v}`)})`;
     };
-    // ------------------------------------------------------------------------------------------------------ types DESCRIBE TABLE
-    context = createContext(client, { chOpts: {}, flags: flagsCH.mapFlgFI.resolve });
-    // result = await context.tableStructure(testDbName, 'allTypes');
+
+    const dataFromCoreTypes = (maxOrMin = 'max', asObj = true) => {
+      const rt = Object.entries(coreTypes).map(([k, v]) => [`col_${k}`, v[maxOrMin]]);
+      if (asObj === true) { return Object.fromEntries(rt); }
+      return rt.map(([, v]) => v); // values only
+      // const dataCH = Object.entries(coreTypes).map(([k, v]) => [`col_${k}`, v.fromJS(v[maxOrMin])]);
+      // const dataCH = Object.entries(coreTypes).map(([k, v]) => [`col_${k}`, v[maxOrMin]]);
+      // dataJS = Object.fromEntries([['id', 1], ...dataJS])
+      // return Object.fromEntries(dataCH);
+    };
+
+    const equalTargetSourceCCC = (sourceObj, colTypes, maxOrMin = 'max') => {
+      const eqArr = Object.entries(sourceObj).map(([col, val]) => {
+        let eq;
+        const trueVal = coreTypes[colTypes[col]][maxOrMin];
+        // if (col.includes('Bool')) { eq = true; }
+        if (col.includes('Date')) { eq = val.getTime() === trueVal.getTime(); }
+        else if (col.includes('Float')) { eq = (Math.abs(val - trueVal) < 3.39999e+39); } // will not be === coz truncations
+        else { eq = val === trueVal; }
+        if (eq !== true) { logger.inspectIt({ col, eq, val, trueVal }, '! equalTargetSource'); }
+        return eq;
+      });
+      return eqArr.every((el) => el === true);
+    };
+
+    const roughlyEqual = (source, target) => {
+      let eq = false;
+      if (source === null || target === null) { eq = (source || 0) === (target || 0); }
+      else if (Array.isArray(source)) { eq = source.every((val, idx) => roughlyEqual(val, target[idx])); }
+      else if (Pythagoras.isDate(source)) { eq = (source.getTime() === target.getTime()); }
+      else if (Pythagoras.isNumberFloat(source)) { eq = (source.toPrecision(4) === target.toPrecision(4)); } // allow for rounding errors
+      else if (typeof source === 'bigint') { eq = (source === target); }
+      else { eq = (source === target); }
+      if (eq !== true) { logger.inspectIt({ eq, source, target }); }
+      return eq;
+    };
+
+    const roughlyEqualObj = (sourceArr, targetArr) => {
+      const eqArr = sourceArr.map((val, idx) => roughlyEqual(val, targetArr[idx]));
+      return eqArr.every((el) => el === true);
+    };
+    // -----------------------------------------------------------------------------------------types DESCRIBE TABLE
+    const context = createContext(client, { chOpts: {}, flags: flagsCH.mapFlgFI.resolve });
     await context.DROP_TABLE(testDb, 'allTypes');
-    result = await context.CREATE_TABLE_fromSchema(testDb, 'allTypes', mostTypesStruct, engine);
+    result = await context.CREATE_TABLE_fromSchema(testDb, 'allTypes', coreTypesStruct(), { ENGINE: 'MergeTree ORDER BY col_Int8' });
     expect(result.statusCode).toBe(200);
-    // result = await context.DESC(testDbName, 'allTypes', { FORMAT: 'JSON' });
-    // -----------------------------------------------------------json
-    data = JSONstringifyCustom(dataJS);
-    logger.inspectIt({ data }, 'data json');
-    result = await context.INSERT_INTO(testDb, 'allTypes', data, { FORMAT: formatStr.JSONEachRow });
-    logger.inspectIt({ result }, 'result insert JSONEachRow');
-    expect(result.statusCode).toBe(200);
-    result = await context.SELECT('*', { FROM: 'testCH.allTypes', WHERE: 'id = 1', LIMIT: '10', FORMAT: formatStr.JSON });
-    logger.inspectIt({ result }, 'SELECT, JSONEachRow');
-    expect(result.body.data[0].Bool).toBe(dataJS.Bool | 0);
-    // ----------------------------------------------  Values
-    result = await context.TRUNCATE_TABLE(testDb, 'allTypes');
-    const columns = toColumnNamesStr(dataJS);
-    values = toValuesStr(dataJS);
-    values = `${values}\n`.repeat(1);
-    logger.inspectIt({ columns, values }, ' columns - values');
-    result = await context.INSERT_INTO(testDb, 'allTypes', `${values}`, { columns });
-    logger.inspectIt({ result }, 'INSERT_INTO Values');
-    result = await context.SELECT('*', { FROM: 'testCH.allTypes', WHERE: 'id = 1', LIMIT: '10', FORMAT: formatStr.JSONCompact });
-    const parser = createParserFromMeta(result.body.meta);
-    result = parser(result.body.data);
-    expect(result[0].UInt256).toBe(dataJS.UInt256); // minimal check
-    logger.inspectIt({ result }, 'parse');
-    result = await context.SELECT('*', { FROM: 'testCH.allTypes', WHERE: 'id = 1', LIMIT: '10', FORMAT: formatStr.JSON });
-    await resultsParse(result);
-    expect(result.body.data[0].UInt128).toBe(dataJS.UInt128); // minimal check
-    logger.inspectIt({ result }, 'parse Values');
+    let maxMin;
+    const maxMinArr = ['min', 'max'];
+    const supportedFormats = ['JSON', 'JSONCompact', 'JSONCompactEachRow'];
+    // ------------------------------------------------------check edge cases (min max values for each type)
+    for (const key in maxMinArr) {
+      maxMin = maxMinArr[key];
+      result = await client.request(`DESCRIBE TABLE (select * FROM ${allTypesNS} ) FORMAT JSON`);
+      const contextTrx = castTransform(result);
+      await context.TRUNCATE_TABLE(testDb, 'allTypes');
+      const dataOriginal = dataFromCoreTypes(maxMin);
+      castData(dataOriginal, contextTrx, 'fromJS');
+      const dataJSON = JSON.stringify(dataOriginal);
+      result = await context.INSERT_INTO(testDb, 'allTypes', dataJSON, { FORMAT: formatStr.JSONEachRow });
+      if (result.statusCode !== 200) { logger.inspectIt(result, dataJSON, 'INSERT_INTO'); }
+      expect(result.statusCode).toBe(200);
+      for (const formatIdx in supportedFormats) {
+        const FORMAT = supportedFormats[formatIdx];
+        logger.debug(`checking ${maxMin} with format ${FORMAT}`);
+        response = await context.SELECT('*', { FROM: `${allTypesNS}`, WHERE: undefined, LIMIT: '1', FORMAT });
+        const ctx = (FORMAT === 'JSONCompactEachRow') ? contextTrx : undefined; // JSONCompactEachRow needs context
+        castResponse(response, ctx);
+        if (FORMAT === 'JSON') { data = Object.values(response.body.data[0]); }
+        else if (FORMAT === 'JSONCompact') { [data] = response.body.data; }
+        else if (FORMAT === 'JSONCompactEachRow') { data = response.body; }
+        else throw Error(`unsupported format ${FORMAT}`);
+        const source = dataFromCoreTypes(maxMin, false);
+        const rEqual = roughlyEqualObj(source, data);
+        if (!rEqual) { logger.inspectIt({ source, data, rEqual }, 'not roughly Equal'); }
+        expect(rEqual).toBe(true);
+      }
+    }
+
+    // ------------------------------------------------------check random;
+    // we create random data cast it to js and back save it to db, retrieve it and compare with original
+    await req(`ALTER TABLE ${testDb}.allTypes DROP COLUMN col_Date32`); // Date32 doesn't support Random table
+    await req(`ALTER TABLE ${testDb}.allTypes DROP COLUMN col_Bool`);  // can't compare with original
+    await req(`ALTER TABLE ${testDb}.allTypes ADD COLUMN col_ArrInt6432 Array(Int64)`); // add an array column coz we don't have one
+    await req(`ALTER TABLE ${testDb}.allTypes ADD COLUMN col_counter Int32`);
+    await req(`DROP TABLE IF EXISTS ${testDb}.allTypesRand`);
+    result = await context.CREATE_TABLE_fromTb(`${testDb}`, 'allTypesRand', `${testDb}`, 'allTypes', { ENGINE: 'GenerateRandom(4096)' });
+    result = await req(`DESCRIBE TABLE (SELECT * FROM ${testDb}.allTypesRand) FORMAT ${formatStr.JSON}`);
+    const contextTrxDes = castTransform(result);
+    logger.inspectIt({contextTrxDes})
+    return;
+    await context.TRUNCATE_TABLE(testDb, 'allTypes');
+    response = await context.SELECT('*', { FROM: 'testCH.allTypesRand', WHERE: undefined, LIMIT: '100', FORMAT: formatStr.JSONCompact }); // max 127
+    expect(response.statusCode).toBe(200);
+    const originalData = response.body.data;
+    // logger.inspectIt({ originalData }, 'originalData');
+    originalData.forEach((x, idx) => { x[x.length - 1] = idx; }); // so we can use it as ORDER BY in select
+    const originalDataCopy = JSON.parse(JSON.stringify(originalData)); // copy because cast will mutate in place
+    logger.time('castResponse');
+    castResponse(response);  // cast to JS
+    castData(response.body.data, contextTrxDes, 'fromJS', formatStr.JSONCompact); // cast back to CH
+    logger.timeEnd('castResponse');
+    // logger.inspectIt({ response }, 'originalData');
+    for (const idx in originalData) {
+      result = await context.INSERT_INTO(testDb, 'allTypes', JSON.stringify(originalData[idx]), { FORMAT: formatStr.JSONCompactEachRow });
+      if (result.statusCode !== 200) { logger.inspectIt(result, 'INSERT_INTO'); }
+      expect(result.statusCode).toBe(200);
+    }
+    response = await context.SELECT('*', { FROM: `${allTypesNS}`, ORDER_BY: 'col_counter ASC', FORMAT: formatStr.JSONCompact });
+    data = response.body.data;
+    // logger.inspectIt({ originalDataCopy, data }, 'SELECT * after cast back fromJS ', 'trace');
+    originalDataCopy.forEach((source, idx) => {
+      const rEqual = roughlyEqualObj(source, data[idx]);
+      if (!rEqual) { logger.inspectIt({ source, dataRecord: data[idx], rEqual }, 'not roughly Equal'); }
+      expect(rEqual).toBe(true);
+    });
   });
 
   it('CreateAndDrops', async () => {
@@ -349,12 +412,12 @@ describe('sql statements', () => {
       str  String
     )`;
     const engine1 = `
-    ENGINE = MergeTree()
+    MergeTree()
     ORDER BY (id, str)
     SETTINGS index_granularity = 8192 
     `;
     const engine2 = `
-    ENGINE = MergeTree()
+    MergeTree()
     ORDER BY (str, id)
     SETTINGS index_granularity = 4192 
     `;
@@ -366,18 +429,21 @@ describe('sql statements', () => {
     await req(DROP_TABLE(dbTstCreate, tb2, { TEMPORARY: false, IF_EXISTS: true }), '', 200);
     await req(DROP_TABLE(dbTstCreate, tb, { TEMPORARY: true, IF_EXISTS: false }), '', 404); // "Code: 60. DB::Exception: Temporary table xxx doesn't exist
     await req(CREATE_TABLE_fromSchema(dbTstCreate, tb, schema, ''), '', 400);  // empty engine 'Code: 62. DB::Exception: Syntax error
-    await req(CREATE_TABLE_fromSchema(dbTstCreate, tb, schema, engine1), '', 200);
-    await req(CREATE_TABLE_fromTb(dbTstCreate, tb2, dbTstCreate, tb, { IF_NOT_EXISTS: true, engine: engine1 }), '', 200);
+    await req(CREATE_TABLE_fromSchema(dbTstCreate, tb, schema, { ENGINE: engine1 }), '', 200);
+    await req(CREATE_TABLE_fromTb(dbTstCreate, tb2, dbTstCreate, tb, { IF_NOT_EXISTS: true, ENGINE: engine1 }), '', 200);
 
-    await req(CREATE_TABLE_fromTb(dbTstCreate, tb2, dbTstCreate, tb, { IF_NOT_EXISTS: false, engine: engine1 }), '', 500); // 'Code: 57. table already exists
+    await req(CREATE_TABLE_fromTb(dbTstCreate, tb2, dbTstCreate, tb, { IF_NOT_EXISTS: false, ENGINE: engine1 }), '', 500); // 'Code: 57. table already exists
 
     await req(DROP_TABLE(dbTstCreate, tb2, { TEMPORARY: false, IF_EXISTS: false }), '', 200);
-    await req(CREATE_TABLE_fromTb(dbTstCreate, tb2, dbTstCreate, tb, { IF_NOT_EXISTS: false, engine: engine2 }), '', 200); // different engine
+    await req(CREATE_TABLE_fromTb(dbTstCreate, tb2, dbTstCreate, tb, { IF_NOT_EXISTS: false, ENGINE: engine2 }), '', 200); // different engine
+
     // // CREATE TABLE t1 (x String) ENGINE = Memory AS SELECT 1
     // export const CREATE_TABLE_fromSelect = (dbName, tableName, schema, engine, SELECT, { IF_NOT_EXISTS = true } = {})
     await req(DROP_TABLE(undefined, 't11', { IF_EXISTS: true }), '', 200);
-    await req(CREATE_TABLE_fromSelect(undefined, 't11', schema2, 'ENGINE = Memory', 1, { IF_NOT_EXISTS: true }), '', 200);
-    await req(CREATE_TABLE_fromSelect(undefined, 't11', schema2, 'ENGINE = Memory', 1, { IF_NOT_EXISTS: false }), '', 500); // 'Code: 57. DB: exists
+    sqlStr = CREATE_TABLE_fromSelect(undefined, 't11', schema2, 1, { ENGINE: 'Memory', IF_NOT_EXISTS: true });
+    // console.dir({sqlStr})
+    await req(CREATE_TABLE_fromSelect(undefined, 't11', schema2, 1, { ENGINE: 'Memory', IF_NOT_EXISTS: true }), '', 200);
+    await req(CREATE_TABLE_fromSelect(undefined, 't11', schema2, 1, { ENGINE: 'Memory', IF_NOT_EXISTS: false }), '', 500); // 'Code: 57. DB: exists
 
     await req(DROP_TABLE(undefined, 't11', { IF_EXISTS: false }), '', 200);
     await req(DROP_DATABASE(dbTstCreate, { IF_EXISTS: 0 }), '', 200); // clean up
@@ -393,16 +459,14 @@ describe('sql statements', () => {
     await check(SELECTraw(`* FROM (SELECT number%50 AS n FROM numbers(100)) ORDER BY n ${limitOffset(false, false, true)} FORMAT JSONCompact`), 100, 0);
 
     await req(DROP_TABLE(undefined, 'testSelect', { IF_EXISTS: true }));
-    await req(CREATE_TABLE_fromSelect(undefined, 'testSelect', '(n UInt32)', 'ENGINE = Memory', 'toUInt32(number) AS n FROM numbers(1, 10)'));
+    await req(CREATE_TABLE_fromSelect(undefined, 'testSelect', '(n UInt32)', 'toUInt32(number) AS n FROM numbers(1, 10)', { ENGINE: 'Memory' }));
     await check(SELECT('*', { FROM: 'testSelect', FORMAT: formatStr.JSONCompact }), 10);
     await req(TRUNCATE_TABLE(undefined, 'testSelect'));
     await check(SELECT('*', { FROM: 'testSelect', FORMAT: formatStr.JSONCompact }), 0);
     result = await req(EXISTS('TABLE', undefined, 'testSelect', { FORMAT: formatStr.JSONCompactEachRow })); expect(result.body[0]).toBe(1);
     logger.inspectIt({ result });
     result = await req(EXISTS('TABLE', undefined, 'testSelectXXXX123')); expect(result.body).toBe('0\n');
-    result = await req(SHOW_CREATE('TABLE', undefined, 'testSelect', { FORMAT: undefined}));
-    // logger.log(`\n${result.body}`)
-    // result = await req(select('*', { FROM: 'testSelect', FORMAT: formatStr.JSONCompact }));
+    result = await req(SHOW_CREATE('TABLE', undefined, 'testSelect', { FORMAT: undefined }));
     await req(DROP_TABLE(undefined, 'testSelect'));
   });
 
@@ -436,21 +500,66 @@ describe('sql statements', () => {
     result = await context.EXISTS('TABLE', testDb, tbContext1);
     expect(result).toBe(200); // callback returns only statusCode
   });
-  
-  it('loop', () => {
-    return
-    // const tstObj = { SELECT: 1, f1: 1, f2: 2, f3: 3};
-    const tstObj = { SELECT: 'foo'};
-    const loops = 10000000;
-    const IfValueK = (obj) => Object.entries(obj).map(([k, v]) => ((v) ? k.replaceAll('_', ' ') : '')).join(' ');
-    const IfValueK1 = (obj) => { const [k, v] = Object.entries(obj)[0]; return ((v) ? k.replaceAll('_', ' ') : ''); };
-    logger.log([IfValueK(tstObj), IfValueK1(tstObj)]);
-     
-    //
-    logger.time('k1'); //-----------------------------------------------
-    for (let idx = 0; idx < loops; idx += 1) {
-      IfValueK(tstObj);
-    }
-    logger.timeEnd('k1'); //--------------------------------------------
+
+  /**
+  * here we create a table and a live View from it, insert some stuff through an interval while monitoring data
+  * as are coming from live view
+  */
+  it('Live View watcher', async () => {
+    const lvSel = `${testDb}.lvSel`;
+    const lv = `${testDb}.liveView`;
+    await Promise.all([req(DROP_TABLE(undefined, lvSel)), req(`DROP VIEW IF EXISTS ${lv}`)]);
+    await req(`CREATE TABLE  ${lvSel} (num UInt8, dtCreated DateTime) ENGINE = MergeTree ORDER BY dtCreated`);
+    await req(`CREATE LIVE VIEW ${lv} AS SELECT num, toUInt32(sum(num)) as sum FROM  ${lvSel} GROUP by num`);
+
+    const request = () => { client.request(`INSERT INTO ${lvSel} SELECT 1 as num, ${new Date().getTime() / 1000}`); };
+    const interval = setInterval(request, 300);
+    const flags = flagsCH.flagsToNum(['throwNon200', 'throwNon200']);
+    const query_id = new Date().toISOString();
+    const watcher = await client.post(`WATCH ${lv} FORMAT JSONEachRow`, undefined, { flags, chOpts: { query_id } }); // don't resolve
+
+    // @important need to handle on error if we abort otherwise it will throw an Unhandled error as we hav already exited the request
+    watcher.body.on('error', async (err) => {
+      if (err.code === 'UND_ERR_ABORTED') { return; }
+      throw err;
+    });
+
+    watcher.body.on('data', async (dataIn) => {
+      const dataObj = JSON.parse(dataIn);
+      logger.inspectIt({ dataObj }, 'live View data');
+      if (dataObj.sum === 5) {
+        clearInterval(interval);
+        watcher.body.destroy(); // if we don't consume the full stream we MUST destroy it
+        await client.request(`KILL QUERY WHERE query_id = '${query_id}'`, null, { flags }); // kill watch query;
+      }
+    });
+    await setTimeoutAsync(3000); // give it some time
   });
+
+  it('test111 ', async () => {
+    return;
+    // const abortController = new AbortController();
+    const lvRnd = `${testDb}.lvRnd`;
+    const lvSel = `${testDb}.lvSel`;
+    const lv = `${testDb}.liveView`;
+    const lvRndCrSql = `CREATE TABLE  ${lvRnd} (num UInt8, date Date) ENGINE = GenerateRandom()`;
+    const lvSelCrSql = `CREATE TABLE  ${lvSel} (num UInt8, date Date) ENGINE = MergeTree ORDER BY num`;
+
+    await Promise.all([req(DROP_TABLE(undefined, lvRnd)), req(DROP_TABLE(undefined, lvSel))]);
+    await req(`DROP VIEW IF EXISTS ${lv}`);
+    await Promise.all([req(lvRndCrSql), req(lvSelCrSql)]); // create 2 tables
+    await req(`CREATE LIVE VIEW ${lv} AS SELECT num, count(num) as cnt FROM  ${lvSel} GROUP by num`);
+
+    // result = await req(`WATCH ${lv}`);
+    // JSONEachRow 'throwClient' flagsCH.flagsToNum(['throwNon200']);
+    sqlStr = `INSERT INTO ${lvSel} SELECT * FROM ${lvRnd} LIMIT 1`;
+    const request = () => { client.request(sqlStr); };
+    const interval = setInterval(request, 300);
+    const flags = flagsCH.flagsToNum(['throwNon200', 'throwNon200']);
+    const watcher = await client.post(`WATCH ${lv} FORMAT JSONEachRow`, undefined, { flags }); // don't resolve
+ 
+    await setTimeoutAsync(6000);
+  });
+
+
 });
