@@ -133,7 +133,7 @@ You can limit output verbosity by setting logLevel variable in /config.js to one
 -   Suggestions bug, reports and pull requests are always welcomed.
 
 ## 🙏 Acknowledgements:
-Many thanks to <a href="https://rapchat.com"><img src="resources/images/rapchat.svg" alt="rapchat" height= 14></a> for partially funding initial development of this project.
+Many thanks to&nbsp;<a href="https://rapchat.com"><img src="resources/images/rapchat.svg" alt="rapchat" style="background-color:black; height:1em;" ></a> for partially funding initial development of this project.
  
 ___
 ## 📖 Awesome Resources and further reading:
