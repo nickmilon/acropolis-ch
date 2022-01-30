@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
@@ -5,28 +6,20 @@
 import assert from 'assert';
 import { setTimeout as setTimeoutAsync } from 'timers/promises';
 import { arrDiffSym } from 'acropolis-nd/lib//Zeno.js';
-import { convertMS } from 'acropolis-nd/lib/Chronos.js'
-import { ConLog } from '../../acropolis-nd/lib/scripts/nodeOnly.js';
+import { convertMS } from 'acropolis-nd/lib/Chronos.js';
+import { ConLog } from 'acropolis-nd/lib/scripts/nodeOnly.js';
 import { confCH } from '../config.js';
-import { ClientExt } from '../lib/clientExt.js';
+import { CHclientExt } from '../lib/clientExt.js';
 import { coreTypes } from '../lib/sql/varsCH/types.js';
 import { DROP_TABLE,
   TRUNCATE_TABLE,
-  SHOW_CREATE,
-  EXISTS,
   CREATE_DATABASE,
-  DROP_DATABASE,
   CREATE_TABLE_fromSchema,
-  CREATE_TABLE_fromTb,
-  CREATE_TABLE_fromSelect,
-  ALTER_TABLE_DELETE,
-  ALTER_TABLE_UPDATE,
-  OPTIMIZE_TABLE,
-  INSERT_INTO } from '../lib/sql/basic.js';
+  CREATE_TABLE_fromTb } from '../lib/sql/basic.js';
 
 const logger = new ConLog('debug', { inclTS: true });
 
-export class ClientExtBM extends ClientExt {
+export class ClientExtBM extends CHclientExt {
   constructor(uri, credentials = {}, {
     connections = 50,
     name = 'ClientExtBM',

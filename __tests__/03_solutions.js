@@ -9,30 +9,12 @@
 
 import { setTimeout as setTimeoutAsync } from 'timers/promises';
 import { PageScroll } from 'acropolis-nd/lib/Euclid.js';
+import { ConLog, consolDummy } from 'acropolis-nd/lib/scripts/nodeOnly.js';
 import { Graph } from '../lib/solutions/graph.js';
-import { ConLog, consolDummy } from '../../acropolis-nd/lib/scripts/nodeOnly.js';
-import { UndiciCH, flagsCH } from '../lib/client.js';
+import { CHclient, flagsCH } from '../lib/client.js';
 import { confCH, runOptions } from '../config.js';
 import { sqlPrettify } from '../lib/sql/fragments.js';
-import { limitOffset, SELECT, SELECTraw } from '../lib/sql/select.js';
-import { createContext, contextStatementsSet, contextStatementsGet, contextStatementsAppend } from '../lib/context.js';
 import { formatStr } from '../lib/sql/varsCH/formats.js';
-import { PageScrollExample, scrollSelect } from '../lib/solutions/pagination.js';
-import { ReadableArrOrFn, TransformParseRaw } from '../lib/helpers/streams.js';
-import * as auxillary from '../lib/sql/auxillary.js';
-import { settingsCH } from '../lib/sql/varsCH/settings.js';
-import {
-  DROP_TABLE,
-  TRUNCATE_TABLE,
-  SHOW_CREATE,
-  EXISTS,
-  CREATE_DATABASE,
-  DROP_DATABASE,
-  ALTER_TABLE_DELETE,
-  ALTER_TABLE_UPDATE,
-  OPTIMIZE_TABLE,
-  INSERT_INTO,
-} from '../lib/sql/basic.js';
 
 class ScrollOnColumn extends PageScroll {
   // expects data in JSONCompact format
@@ -93,7 +75,7 @@ describe('sql statements', () => {
   };
 
   beforeAll(async () => {
-    client = new UndiciCH(confCH.uri, confCH.credentials, { connections: 10 });
+    client = new CHclient(confCH.uri, confCH.credentials, { connections: 10 });
     client.defaultFlags = ['resolve', 'throwClient', 'throwNon200'];
     graph = new Graph(client);
   });

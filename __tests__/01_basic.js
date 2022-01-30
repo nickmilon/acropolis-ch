@@ -6,11 +6,11 @@
 /* eslint-disable no-undef */
 
 import { setTimeout as setTimeoutAsync } from 'timers/promises';
-import { ConLog, consolDummy } from '../../acropolis-nd/lib/scripts/nodeOnly.js';
-import { UndiciCH, flagsCH, eventsCH } from '../lib/client.js';
+import { objRndFlat } from 'acropolis-nd/lib/Eratosthenes.js';
+import { ConLog, consolDummy } from 'acropolis-nd/lib/scripts/nodeOnly.js';
+import { CHclient, flagsCH } from '../lib/client.js';
 import { confCH, runOptions } from '../config.js';
 import { sqlTests } from '../lib/structures/tests.js';
-import { rndObjArr, } from '../lib/scripts/base.js';
 import { filterFormats } from '../lib/sql/varsCH/formats.js';
 
 const logLevel = runOptions?.tests?.logLevel || 'log';
@@ -18,7 +18,7 @@ const logLevel = runOptions?.tests?.logLevel || 'log';
 const logger = (logLevel === 'silent') ? consolDummy : new ConLog('debug', { inclTS: true });
 
 // eslint-disable-next-line no-console
-console.log(`set logLevel variable in config.js in one of available Levels: ${ConLog.availableLevelsStr()}`);
+console.log(`set logLevel variable in config.js to one of available Levels: ${ConLog.availableLevelsStr()}`);
 
 describe('basic functionality', () => {
   let client;
@@ -37,8 +37,7 @@ describe('basic functionality', () => {
   beforeAll(async () => {
     // const display = (name, event, args) => logger.inspectIt(name, event, args);
     // const display = (name, event, ...args) => console.log({ name, event, args });
-    // client = new UndiciCH(confCH.uri, { connections: 10, credentials: confCH.credentials, logger: console });
-    client = new UndiciCH(confCH.uri, confCH.credentials, { connections: 10 });
+    client = new CHclient(confCH.uri, confCH.credentials, { connections: 10 });
     // client.events.onAll(display);
     /*
     client.events.on('Created', (name, event, args) => display(name, event, args));
@@ -75,6 +74,15 @@ describe('basic functionality', () => {
   });
 
   it('createTables & populate', async () => {
+    // creates an randomly filled array
+    const rndObjArr = (start = 1, end = 1000) => {
+      const resArr = [];
+      for (let cnt = start; cnt < end - start + 2; cnt += 1) {
+        resArr.push({ id: cnt, ...objRndFlat() });
+      }
+      return resArr;
+    };
+
     const ns = NSobjRndFlat;
     result = await sqlExec(client.post(`CREATE DATABASE IF NOT EXISTS ${testDbName}`));
     result = await sqlExec(client.post(`DROP TABLE IF EXISTS ${ns}`));
@@ -115,7 +123,7 @@ describe('basic functionality', () => {
   });
 
   it('MultipleConnections', async () => {
-    const clientLocal = new UndiciCH(confCH.uri, confCH.credentials, { connections: 20 });
+    const clientLocal = new CHclient(confCH.uri, confCH.credentials, { connections: 20 });
     const requestCount = 10;
     const rowsCount = 1000000;
     const flags = flagsCH.flagsToNum(['resolve']); //
@@ -141,7 +149,7 @@ describe('basic functionality', () => {
   it('checkEvents', async () => { // checkEvents
     const dirtyCount = (counter, tag, inc) => { counter[tag] = counter[tag] ? counter[tag] + inc : inc; return counter; };
     const counter = {};
-    const localClient = new UndiciCH(confCH.uri, confCH.credentials, { connections: 1, name: 'localClient' });
+    const localClient = new CHclient(confCH.uri, confCH.credentials, { connections: 1, name: 'localClient' });
     const display = async (group, event, args) => {
       if (group === localClient.name) { // filter coz can have same event from other group (client)
         dirtyCount(counter, event, 1);

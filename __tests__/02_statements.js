@@ -13,20 +13,18 @@
 
 import { setTimeout as setTimeoutAsync } from 'timers/promises';
 import { setInterval } from 'timers';
-import { createWriteStream } from 'fs';
-import { finished, pipeline } from 'stream/promises';
-import { ConLog, consolDummy } from '../../acropolis-nd/lib/scripts/nodeOnly.js';
-import { UndiciCH, flagsCH } from '../lib/client.js';
+import { pipeline } from 'stream/promises';
+import { ConLog, consolDummy } from 'acropolis-nd/lib/scripts/nodeOnly.js';
+import * as Pythagoras from 'acropolis-nd/lib/Pythagoras.js';
+import { CHclient, flagsCH } from '../lib/client.js';
 import { confCH, runOptions } from '../config.js';
 import { sqlPrettify } from '../lib/sql/fragments.js';
 import { limitOffset, SELECT, SELECTraw } from '../lib/sql/select.js';
 import { createContext } from '../lib/context.js';
 import { formatStr } from '../lib/sql/varsCH/formats.js';
-import { castTransform, castData, castResponse, dataTransform, metaTrim, toValuesStr, columnsFromStructStr, rxDefaultRowMach } from '../lib/helpers/transforms.js';
+import { castTransform, castData, castResponse, columnsFromStructStr, rxDefaultRowMach } from '../lib/helpers/transforms.js';
 import { PageScrollExample, scrollSelect } from '../lib/solutions/pagination.js';
 import { ReadableArrOrFn, TransformParseRaw } from '../lib/helpers/streams.js';
-import * as Pythagoras from '../../acropolis-nd/lib/Pythagoras.js';
-// import * as auxillary from '../lib/sql/auxillary.js';
 import { settingsCH } from '../lib/sql/varsCH/settings.js';
 import {
   DROP_TABLE,
@@ -88,16 +86,16 @@ describe('sql statements', () => {
   };
 
   beforeAll(async () => {
-    client = new UndiciCH(confCH.uri, confCH.credentials, { connections: 10 });
+    client = new CHclient(confCH.uri, confCH.credentials, { connections: 10 });
     // client.defaultFlags = ['resolve', 'throwClient', 'throwNon200']; 
     await req(CREATE_DATABASE(testDb));
   });
 
   afterAll(async () => {
     // await req(DROP_DATABASE(testDb));
-    await setTimeoutAsync(100);
+    await setTimeoutAsync(200);
     await client.close();
-    await setTimeoutAsync(100); // give it some time if prints are pending
+    await setTimeoutAsync(200); // give it some time if prints are pending
   });
 
   it('Pipe Etc', async () => {
@@ -290,24 +288,6 @@ describe('sql statements', () => {
       const rt = Object.entries(coreTypes).map(([k, v]) => [`col_${k}`, v[maxOrMin]]);
       if (asObj === true) { return Object.fromEntries(rt); }
       return rt.map(([, v]) => v); // values only
-      // const dataCH = Object.entries(coreTypes).map(([k, v]) => [`col_${k}`, v.fromJS(v[maxOrMin])]);
-      // const dataCH = Object.entries(coreTypes).map(([k, v]) => [`col_${k}`, v[maxOrMin]]);
-      // dataJS = Object.fromEntries([['id', 1], ...dataJS])
-      // return Object.fromEntries(dataCH);
-    };
-
-    const equalTargetSourceCCC = (sourceObj, colTypes, maxOrMin = 'max') => {
-      const eqArr = Object.entries(sourceObj).map(([col, val]) => {
-        let eq;
-        const trueVal = coreTypes[colTypes[col]][maxOrMin];
-        // if (col.includes('Bool')) { eq = true; }
-        if (col.includes('Date')) { eq = val.getTime() === trueVal.getTime(); }
-        else if (col.includes('Float')) { eq = (Math.abs(val - trueVal) < 3.39999e+39); } // will not be === coz truncations
-        else { eq = val === trueVal; }
-        if (eq !== true) { logger.inspectIt({ col, eq, val, trueVal }, '! equalTargetSource'); }
-        return eq;
-      });
-      return eqArr.every((el) => el === true);
     };
 
     const roughlyEqual = (source, target) => {
@@ -365,16 +345,15 @@ describe('sql statements', () => {
 
     // ------------------------------------------------------check random;
     // we create random data cast it to js and back save it to db, retrieve it and compare with original
-    await req(`ALTER TABLE ${testDb}.allTypes DROP COLUMN col_Date32`); // Date32 doesn't support Random table
-    await req(`ALTER TABLE ${testDb}.allTypes DROP COLUMN col_Bool`);  // can't compare with original
+    // before Date32 support await req(`ALTER TABLE ${testDb}.allTypes DROP COLUMN col_Date32`); // Date32 doesn't support Random table  
+    // prior to native bool support by CH await req(`ALTER TABLE ${testDb}.allTypes DROP COLUMN col_Bool`);  // can't compare with original
     await req(`ALTER TABLE ${testDb}.allTypes ADD COLUMN col_ArrInt6432 Array(Int64)`); // add an array column coz we don't have one
     await req(`ALTER TABLE ${testDb}.allTypes ADD COLUMN col_counter Int32`);
     await req(`DROP TABLE IF EXISTS ${testDb}.allTypesRand`);
     result = await context.CREATE_TABLE_fromTb(`${testDb}`, 'allTypesRand', `${testDb}`, 'allTypes', { ENGINE: 'GenerateRandom(4096)' });
     result = await req(`DESCRIBE TABLE (SELECT * FROM ${testDb}.allTypesRand) FORMAT ${formatStr.JSON}`);
     const contextTrxDes = castTransform(result);
-    logger.inspectIt({contextTrxDes})
-    return;
+
     await context.TRUNCATE_TABLE(testDb, 'allTypes');
     response = await context.SELECT('*', { FROM: 'testCH.allTypesRand', WHERE: undefined, LIMIT: '100', FORMAT: formatStr.JSONCompact }); // max 127
     expect(response.statusCode).toBe(200);
