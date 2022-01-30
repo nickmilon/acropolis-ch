@@ -1,6 +1,6 @@
 {
   "name": "acropolis-ch",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "node clickhouse client",
   "type": "module",
   "main": "index.js",

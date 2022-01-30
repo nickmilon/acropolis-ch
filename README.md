@@ -31,10 +31,10 @@ and particular use cases by providing expandable building blocks. Also we try to
   
     `npm install acropolis-ch --save` to install.
     ### check installation:
-    1.  `cd yourInstallationFolder/node_modules/acropolis-ch/`<br>
-    2.  <em>edit const confCH in scripts/usage.js to reflect your clickhouse url and credentials</em><br>
-    3.  `npm run usageREPL` to check installation and connection to clickhouse<br>
-    4.  <em>check output for errors or warnings</em><br>
+    `cd yourInstallationFolder/node_modules/acropolis-ch/`<br>
+    <em>edit const confCH in scripts/usage.js to reflect your clickhouse url and credentials</em><br>
+    `npm run usageREPL` to check installation and connection to clickhouse<br>
+    <em>check output for errors or warnings</em><br>
  
 -   ## basic usage:
 ---
