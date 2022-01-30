@@ -57,17 +57,17 @@ and particular use cases by providing expandable building blocks. Also we try to
 {
   statusCode: 200,
   headers: {
-    date: 'Sun, 30 Jan 2022 02:05:05 GMT',
+    date: 'Sun, 30 Jan 2022 01:53:58 GMT',
     connection: 'Keep-Alive',
     'content-type': 'application/json; charset=UTF-8',
     'x-clickhouse-server-display-name': 'Y720',
     'transfer-encoding': 'chunked',
-    'x-clickhouse-query-id': 'be265e85-86f4-46c5-9535-1a3fa9c7716d',
+    'x-clickhouse-query-id': '44e75826-5fa2-4394-879e-cb3cef85571f',
     'x-clickhouse-format': 'JSON',
     'x-clickhouse-timezone': 'Europe/Athens',
     'keep-alive': 'timeout=3',
     'x-clickhouse-summary': '{"read_rows":"0","read_bytes":"0","written_rows":"0","written_bytes":"0","total_rows_to_read":"0"}',
-    'x-acropolis-dtEnd': 2022-01-30T02:05:05.384Z
+    'x-acropolis-dtEnd': 2022-01-30T01:53:58.683Z
   },
   trailers: {},
   body: {
@@ -82,7 +82,7 @@ and particular use cases by providing expandable building blocks. Also we try to
     ],
     rows: 6,
     rows_before_limit_at_least: 6,
-    statistics: { elapsed: 0.000171452, rows_read: 6, bytes_read: 48 }
+    statistics: { elapsed: 0.000182997, rows_read: 6, bytes_read: 48 }
   }
 }
 // 👇 console.dir({result})
@@ -90,17 +90,17 @@ and particular use cases by providing expandable building blocks. Also we try to
 {
   statusCode: 200,
   headers: {
-    date: 'Sun, 30 Jan 2022 02:05:05 GMT',
+    date: 'Sun, 30 Jan 2022 01:53:58 GMT',
     connection: 'Keep-Alive',
     'content-type': 'application/json; charset=UTF-8',
     'x-clickhouse-server-display-name': 'Y720',
     'transfer-encoding': 'chunked',
-    'x-clickhouse-query-id': 'be265e85-86f4-46c5-9535-1a3fa9c7716d',
+    'x-clickhouse-query-id': '44e75826-5fa2-4394-879e-cb3cef85571f',
     'x-clickhouse-format': 'JSON',
     'x-clickhouse-timezone': 'Europe/Athens',
     'keep-alive': 'timeout=3',
     'x-clickhouse-summary': '{"read_rows":"0","read_bytes":"0","written_rows":"0","written_bytes":"0","total_rows_to_read":"0"}',
-    'x-acropolis-dtEnd': 2022-01-30T02:05:05.384Z
+    'x-acropolis-dtEnd': 2022-01-30T01:53:58.683Z
   },
   trailers: {},
   body: {
@@ -115,7 +115,7 @@ and particular use cases by providing expandable building blocks. Also we try to
     ],
     rows: 6,
     rows_before_limit_at_least: 6,
-    statistics: { elapsed: 0.000171452, rows_read: 6, bytes_read: 48 }
+    statistics: { elapsed: 0.000182997, rows_read: 6, bytes_read: 48 }
   }
 }
 ➡️ ➡️ ➡️	assert.equal(result.statusCode, 200);
@@ -132,9 +132,10 @@ You can limit output verbosity by setting logLevel variable in /config.js to one
 -   Library has been used in production without issues for quite some time, still we encourage to do your own testing/evaluation before using in production.  
 -   Suggestions bug, reports and pull requests are always welcomed.
 
-## Acknowledgements:
-Many thanks to [rapchat](https://rapchat.com) for partially funding initial development of this project.
+## 🙏 Acknowledgements:
+Many thanks to <a href="https://rapchat.com"><img src="resources/images/rapchat.svg" alt="rapchat" height= 14></a> for partially funding initial development of this project.
+ 
 ___
-## 📖 Resources and further reading:
-- [see here](notes/resources.md)
+## 📖 Awesome Resources and further reading:
+- [see here](resources/awesome.md)
 ___
