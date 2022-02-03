@@ -39,12 +39,6 @@ describe('basic functionality', () => {
     // const display = (name, event, ...args) => console.log({ name, event, args });
     client = new CHclient(confCH.uri, confCH.credentials, { connections: 10 });
     // client.events.onAll(display);
-    /*
-    client.events.on('Created', (name, event, args) => display(name, event, args));
-    client.events.on('Request', (name, event, args) => display(name, event, args));
-    client.events.on('Closed', (name, event, args) => console.log('xxxx', name, event, { args }));
-    client.events.on('Error', (name, event, args) => console.log('', name, event, { args }));
-    */
     // client.events.on('Closed', (name, event, => console.log('req xxx', { name, event }));
   });
 

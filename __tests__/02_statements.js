@@ -269,7 +269,7 @@ describe('sql statements', () => {
     result = await check(SELECT('COUNT(*)', { FROM: `${testDb}.${tbName}`, WHERE: 'str = \'bar\'', FORMAT: formatStr.JSONCompact }), 1, '50000');
   });
 
-  it('test1', async () => { // typeConversions
+  it('typeConversions', async () => { // typeConversions
     const allTypesNS = `${testDb}.allTypes`;
     let response;
     const coreTypesStruct = () => {
@@ -493,7 +493,7 @@ describe('sql statements', () => {
 
     const request = () => { client.request(`INSERT INTO ${lvSel} SELECT 1 as num, ${new Date().getTime() / 1000}`); };
     const interval = setInterval(request, 300);
-    const flags = flagsCH.flagsToNum(['throwNon200', 'throwNon200']);
+    const flags = flagsCH.flagsToNum(['throwNon200']);
     const query_id = new Date().toISOString();
     const watcher = await client.post(`WATCH ${lv} FORMAT JSONEachRow`, undefined, { flags, chOpts: { query_id } }); // don't resolve
 
