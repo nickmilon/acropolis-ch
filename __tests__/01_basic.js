@@ -8,10 +8,13 @@
 import { setTimeout as setTimeoutAsync } from 'timers/promises';
 import { objRndFlat } from 'acropolis-nd/lib/Eratosthenes.js';
 import { ConLog, consolDummy } from 'acropolis-nd/lib/scripts/nodeOnly.js';
-import { CHclient, flagsCH } from '../lib/client.js';
+import { CHclient, flagsCH } from '../index.js';
+
 import { confCH, runOptions } from '../config.js';
 import { sqlTests } from '../lib/structures/tests.js';
 import { filterFormats } from '../lib/sql/varsCH/formats.js';
+
+// const { CHclient, flagsCH } = import { moduleClient } from '../index.js;)
 
 const logLevel = runOptions?.tests?.logLevel || 'log';
 

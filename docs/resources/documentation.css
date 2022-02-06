@@ -1,0 +1,18 @@
+.prettyprint {
+    border: 4px ridge gray !important;
+}
+.prettyprint code {
+    font-size: x-large !important;
+    line-height: 1.1em !important; 
+}
+code {
+    border: 2px ridge gray;
+}
+.foo {
+    background-color: rgb(138, 29, 29);
+    
+    font-size: x-large !important;
+    line-height: 1.1em !important;
+    border: 4px ridge #444; 
+    margin-top: 4px; 
+}
