@@ -53,7 +53,7 @@ const logger = (logLevel === 'silent') ? consolDummy : new ConLog(logLevel, { in
 // eslint-disable-next-line no-console
 console.log(`set logLevel variable in config.js in one of available Levels: ${ConLog.availableLevelsStr()}`);
 
-describe('sql statements', () => {
+describe('sql statements II', () => {
   let client;
   let result;
   let sqlStr;
@@ -407,7 +407,7 @@ describe('sql statements', () => {
     await req(DROP_TABLE(dbTstCreate, tb, { TEMPORARY: false, IF_EXISTS: true }), '', 200);
     await req(DROP_TABLE(dbTstCreate, tb2, { TEMPORARY: false, IF_EXISTS: true }), '', 200);
     await req(DROP_TABLE(dbTstCreate, tb, { TEMPORARY: true, IF_EXISTS: false }), '', 404); // "Code: 60. DB::Exception: Temporary table xxx doesn't exist
-    await req(CREATE_TABLE_fromSchema(dbTstCreate, tb, schema, ''), '', 400);  // empty engine 'Code: 62. DB::Exception: Syntax error
+    await req(CREATE_TABLE_fromSchema(dbTstCreate, tb, schema, ''), '', 500);  // empty engine 'Code: 62. DB::Exception: Syntax error
     await req(CREATE_TABLE_fromSchema(dbTstCreate, tb, schema, { ENGINE: engine1 }), '', 200);
     await req(CREATE_TABLE_fromTb(dbTstCreate, tb2, dbTstCreate, tb, { IF_NOT_EXISTS: true, ENGINE: engine1 }), '', 200);
 
@@ -488,7 +488,7 @@ describe('sql statements', () => {
     const lvSel = `${testDb}.lvSel`;
     const lv = `${testDb}.liveView`;
     await Promise.all([req(DROP_TABLE(undefined, lvSel)), req(`DROP VIEW IF EXISTS ${lv}`)]);
-    await req(`CREATE TABLE  ${lvSel} (num UInt8, dtCreated DateTime) ENGINE = MergeTree ORDER BY dtCreated`);
+    await req(`CREATE TABLE  ${lvSel} (num UInt8, dtCreated DateTime) ENGINE = MergeTree ORDER BY dtCreated`); 
     await req(`CREATE LIVE VIEW ${lv} AS SELECT num, toUInt32(sum(num)) as sum FROM  ${lvSel} GROUP by num`);
 
     const request = () => { client.request(`INSERT INTO ${lvSel} SELECT 1 as num, ${new Date().getTime() / 1000}`); };

@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "null": "echo \"Error: null\" && exit 1",
-    "usageREPL": "NODE_OPTIONS='--experimental-vm-modules --experimental-repl-await'  scripts/usageREPL.js",        
+    "usageREPL": "NODE_OPTIONS='--experimental-vm-modules --experimental-repl-await'  scripts/usageREPL.js",       
+    "twt-sample-download": "scripts/download-sample.sh",
+    "twt-data-import": "scripts/twt-data-import.js",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test1": "NODE_OPTIONS='--experimental-vm-modules' jest  -t 'test1'",
     "testWatch": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles --watch"
@@ -33,7 +35,7 @@
   },
   "homepage": "https://github.com/nickmilon/acropolis-ch#readme",
   "engines": {
-    "node": ">=16.10.0"
+    "node": ">=18"
   },
   "jest": {
     "collectCoverage": false,
@@ -46,7 +48,7 @@
   },
   "dependencies": {
     "acropolis-nd": "github:nickmilon/acropolis-nd",
-    "undici": "^4.10.4"
+    "undici": "4.16.04"
   },
   "globals": {
     "__inspect__": false

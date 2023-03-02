@@ -87,24 +87,31 @@ describe('sql statements', () => {
     await setTimeoutAsync(100); // give it some time if prints are pending
   });
 
-  it('test1', async () => {
+  it('test1', async () => {  // paging
     const scrollP = new ScrollOnColumn('parent', 'AND');
-    const scrollC = new ScrollOnColumn('child', 'AND');
+    // const scrollC = new ScrollOnColumn('child', 'AND');
     let pg = {};
-    const child = 23934048;
-    result = await graph.parents(child, 2, '', { FORMAT: formatStr.Pretty });
+    const child = 106186; // 23934048;
+    result = await graph.parents(child, 2, '', { type: 1, FORMAT: formatStr.Pretty });
+    // console.log(result)
+    expect(result.body.length).toBeGreaterThan(0);  // found child #
+    // console.dir(result)
+    // return  
     logger.log(prettyLog(result.body, 'first 2 rows'));
     let vector = 10; // just a demo
-    result = await graph.parents(child, vector, '', { FORMAT: formatStr.JSONCompact });
+    result = await graph.parents(child, vector, '', { type:1, FORMAT: formatStr.JSONCompact });
     logger.dir({ body: result.body });
+  
     pg = await scrollP.getPageObj(result.body.data, pg, vector);
     logger.inspectIt({ body: result.body, pg }, 'scrolling ');
     const res10 = result.body.data.flat();
-    vector = 1;
      
-    pg = {}; // reset page object;
+    vector = 1;
+    pg = {};
     for (let index = 0; index < 10; index += 1) {  // scroll from beginning one row at a time
-      result = await graph.parents(child, vector, pg.next, { FORMAT: formatStr.JSONCompact }); // first row will default to undefined class will handle it
+      result = await graph.parents(child, vector, pg.next, { type: 1, FORMAT: formatStr.Pretty })
+      logger.log(prettyLog(result.body,  `index:${index}`));
+      result = await graph.parents(child, vector, pg.next, { type: 1, FORMAT: formatStr.JSONCompact }); // first row will default to undefined class will handle it
       expect(result.body.data[0][0]).toBe(res10[index]);
       pg = await scrollP.getPageObj(result.body.data, pg, vector);
     }

@@ -1,3 +1,6 @@
+# docs 
+docs/_code/node/acropolis-ch/resources/awesome.md
+./docs/*
 # Logs
 logs
 *.log

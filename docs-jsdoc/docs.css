@@ -1,0 +1,66 @@
+.prettyprint {
+    border: 4px ridge gray !important;
+}
+.prettyprint code {
+    font-size: 1.4em !important;
+    line-height: 1.1em !important; 
+}
+code {
+    border: 2px ridge gray;
+}
+
+article ul li::before {
+    content: '•' !important; 
+} 
+
+.foo {
+    background-color: rgb(138, 29, 29);
+    font-size: x-large !important;
+    line-height: 1.1em !important;
+    border: 4px ridge #444; 
+    margin-top: 4px; 
+}
+
+.nm-topHeader {
+    background-color: #2a2b2c;
+    text-align:center;
+    font-family: serif;
+}
+
+.container-overviewXX {
+    border: 4px ridge #444;
+    padding: 6px;
+}
+
+.descriptionXX {
+    margin-bottom: 0px !important;
+    border: 4px ridge red;
+}
+
+div.nm-desc-module {
+    border: 4px ridge #444;
+    padding: 6px;
+}
+div.nm-desc-module > p::first-line {
+    font-weight: bold;
+}
+
+div.nm-desc-module::before {
+    content: "Overview:";
+    font-size:larger;
+    text-decoration: underline;
+}
+
+.container-overviewXX::before {
+    content: "Overview:";
+    font-size:larger;
+    text-decoration: underline;
+  }
+
+.method-member-containerXXXXX {
+    background-color: blue;
+}
+
+p+div.nm-summary-class {
+    display: none; /* don't display summary when duplicate of description */
+}

@@ -1,10 +1,16 @@
 # acropolis-ch
-Yet one more Node js HTTP client for [clickhouse](https://clickhouse.com/). This one is based on [undici](https://undici.nodejs.org/)
+
+Node js HTTP client for:&nbsp;
+<a href="https://clickhouse.com" target= "_blank">
+<img src="./resources/images/clickhouse.svg" alt="clickhouse.com" height=14>&nbsp;&nbsp;clickhouse
+</a>
+using [undici](https://undici.nodejs.org/) http library.
+___
 
 ## Why
 Although there are already a few [js libraries for Clickhouse](https://clickhouse.com/docs/en/interfaces/third-party/client-libraries/),
 we decided to write this one from scratch, reasons been among others:
--   Existing libs couldn't cover the needs for the project that this library was written for in first place where performance was a paramount requirement.
+-   Existing libs couldn't cover the needs for the project that this library was written for  where performance was a paramount requirement.
 -   As clickhouse has quite a few idiosyncrasies compared to classic sql we needed something more than a plain driver in order to make 
     onboarding easy for developers.
 -   Node's native standard http library is quite problematic with a huge back-log of issues and performance is not optimal.
@@ -42,45 +48,65 @@ and particular use cases by providing expandable building blocks. Also we try to
 ```js 
 
 /**
-...  * @summary:🚦🤯 usage example
+...  * @summary: usage example 🤯
 ...  * This is a script modified to run under Node's REPL to produce a usage.md file
 ...  * therefore it contains some strange syntax that should be not used in a normal module in particular:
 ...  * 1) sometimes uses 'var' for declarations instead of const and/or let
 ...  * 2) uses dynamic imports (a function) in place of import statements as in JS modules.
 ...  * ❗️So you will have to adjust for those if you reuse part of this code
 ...  */
-
-▶️▶️ const assert = await import('assert'); // ignore
-
 // 👇❗️in your modules replace with: import { CHclient, ...  } from 'acropolis-ch'
-▶️▶️ const { CHclient, flagsCH, createContext, formatStr } = await import(`${impDir}/index.js`)
- auxillary functions used only by this script
+➡️ const { CHclient, flagsCH, createContext, formatStr } = await import(`${impDir}/index.js`)
 // 👇just for easy client configuration (provide your parameters here)
-▶️▶️ const confCH = { uri: 'http://localhost:8123', credentials: { user: 'default', password: 'nickmilon' } };
+➡️ const confCH = { uri: 'http://localhost:8123', credentials: { user: 'default', password: 'nickmilon' } };
 // 👇create client instance with given parameters
-▶️▶️ const client = new CHclient(confCH.uri, confCH.credentials, { connections: 10 });
+➡️ const client = new CHclient(confCH.uri, confCH.credentials, { connections: 10 });
 
 // 👇 check ping CH server  🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥🚥
-▶️▶️ result = await client.ping() // 👈 ping CH server
-▶️▶️ assert.equal(result.statusCode, 200); // ✅ statusCode should always be 200 if no error even if credentials are wrong
-▶️▶️ assert.equal(result.body, 'Ok.\n');   // ✅ ping body text should be 'Ok.\n'
-▶️▶️ const statusCodePing = result.statusCode;
-▶️▶️ result = await client.request('SELECT * FROM numbers(1, 3) FORMAT JSON') // 👈 run a CH query
+➡️ result = await client.ping() // 👈 ping CH server
+➡️ result.statusCode // ✅ statusCode should always be 200 if all ok and CH server is reachable no error even if credentials are wrong
+200
+➡️ result = await client.request('SELECT * FROM numbers(1, 3) FORMAT JSON') // 👈 run a CH query
+{
+  statusCode: 200,
+  headers: {
+    date: 'Sat, 12 Feb 2022 09:40:17 GMT',
+    connection: 'Keep-Alive',
+    'content-type': 'application/json; charset=UTF-8',
+    'x-clickhouse-server-display-name': 'Y720',
+    'transfer-encoding': 'chunked',
+    'x-clickhouse-query-id': '4048dd6b-49b1-4f8d-b54f-3ed2e5d0b8c0',
+    'x-clickhouse-format': 'JSON',
+    'x-clickhouse-timezone': 'Europe/Athens',
+    'keep-alive': 'timeout=3',
+    'x-clickhouse-summary': '{"read_rows":"0","read_bytes":"0","written_rows":"0","written_bytes":"0","total_rows_to_read":"0"}',
+    'x-acropolis-dtEnd': 2022-02-12T09:40:17.341Z
+  },
+  trailers: {},
+  body: {
+    meta: [ { name: 'number', type: 'UInt64' } ],
+    data: [ { number: '1' }, { number: '2' }, { number: '3' } ],
+    rows: 3,
+    rows_before_limit_at_least: 3,
+    statistics: { elapsed: 0.000206268, rows_read: 3, bytes_read: 24 }
+  }
+}
+➡️ if (result.statusCode === 403 && statusCodePing === 200 ) {  stdoutMsg(`❗️❗️❗️CH http server responds but probably your credentials are wrong\n ${result.body}`); }  // {{DE>>>if (result.statusCode === 403 && statusCodePing === 200 ) {  stdoutMsg(`❗️❗️❗️CH http server responds but probably your credentials are wrong\n ${result.body}`); }  // {{DEL }}
 
 /**
-...  * @summary:🚦🤯 CH query demo
+...  * @summary: CH query demo🚦🤯
 ...  * All queries to ch are async and return an object { statusCode, body, headers, trailers} when resolved
 ...  * You can read more about client flags in library docs.
 ...  * body can be a string or json or a promise depending on some flag settings and CH format used
 ...  */
-▶️▶️ var { statusCode, result, body, headers } = await client.request('SELECT * FROM numbers(1, 3) FORMAT CSV');
-▶️▶️ body; // 👇 body now is a text because we changed CH format to CSV
+➡️ var { statusCode, result, body, headers } = await client.request('SELECT * FROM numbers(1, 3) FORMAT CSV');
+➡️ body; // 👇 body now is a text because we changed CH format to CSV
 '1\n2\n3\n'
-▶️▶️ result = await client.request('DROP TABLE IF EXISTS default.usage1');
-▶️▶️ result = await client.request('DROP TABLE usage1');
-▶️▶️ result.statusCode; // 👇 statusCode returned by CH is 404 since table doesn't exist as we dropped it already if existed
+➡️ result = await client.request('DROP TABLE IF EXISTS default.usage1');
+➡️ result = await client.request('DROP TABLE usage1');
+➡️ result.statusCode; // 👇 statusCode returned by CH is 404 since table doesn't exist as we dropped it already if existed
 404
-▶️▶️ result.body; // 👇 body contains verbose info for the error
+➡️ result.body; // 👇 body contains verbose info for the error
 "Code: 60. DB::Exception: Table default.usage1 doesn't exist. (UNKNOWN_TABLE) (version 22.1.3.7 (official build))\n"
 
 /**
@@ -90,20 +116,20 @@ and particular use cases by providing expandable building blocks. Also we try to
 ...  * Following line creates a client context where flags do not specify flag 'resolve' so body returned by any query 
 ...  * that uses this context will be a stream
 ...  */
-▶️▶️ ctxStream = createContext(client, { chOpts: {}, flags: flagsCH.flagsToNum(['throwNon200']) });
+➡️ ctxStream = createContext(client, { chOpts: {}, flags: flagsCH.flagsToNum(['throwNon200']) });
 // 👇 create an other client context that resolves body and specifies a clickhouse option
-▶️▶️ ctxResolve = createContext(client, { chOpts: { output_format_json_quote_64bit_integers: 0 }, flags: flagsCH.flagsToNum(['resolve']) });
-▶️▶️ result = await ctxStream.CREATE_TABLE_fromSchema('default', 'usage1', '(number UInt64)', { ENGINE: 'MergeTree ORDER BY number' });
-▶️▶️ result = await ctxStream.SELECT('*', { FROM: 'numbers(1, 100000)', FORMAT: formatStr.CSV}); //  specify format by formatsStr for convenience
-▶️▶️ [typeof result.body, typeof result.body._read ] // 👈 since context flags does not specify flag 'resolve' body will be a readable stream
+➡️ ctxResolve = createContext(client, { chOpts: { output_format_json_quote_64bit_integers: 0 }, flags: flagsCH.flagsToNum(['resolve']) });
+➡️ result = await ctxStream.CREATE_TABLE_fromSchema('default', 'usage1', '(number UInt64)', { ENGINE: 'MergeTree ORDER BY number' });
+➡️ result = await ctxStream.SELECT('*', { FROM: 'numbers(1, 100000)', FORMAT: formatStr.CSV}); //  specify format by formatsStr for convenience
+➡️ [typeof result.body, typeof result.body._read ] // 👈 since context flags does not specify flag 'resolve' body will be a readable stream
 [ 'object', 'function' ]
 
 // 👇 inserting into table usage1 body the stream of previous SELECT 
-▶️▶️ result = await ctxStream.INSERT_INTO('default', 'usage1', result.body, {FORMAT: 'CSV'}) // 👈 inserting into table usage1 body stream of previous SELECT 
-▶️▶️ result = await ctxResolve.SELECT('count(*) as count', { FROM: 'default.usage1', FORMAT: formatStr.JSONEachRow});
-▶️▶️ assert.equal(result.body.count, 100000 ); // 👈 we just inserted 100K records from one table to an other 🤪 clickHouse is so fast 
-▶️▶️ result = await ctxResolve.DROP_TABLE('default', 'usage1');
-▶️▶️ assert.equal(result.statusCode, 200);
+➡️ result = await ctxStream.INSERT_INTO('default', 'usage1', result.body, {FORMAT: 'CSV'}) // 👈 inserting into table usage1 body stream of previous SELECT 
+➡️ result = await ctxResolve.SELECT('count(*) as count', { FROM: 'default.usage1', FORMAT: formatStr.JSONEachRow});
+➡️ assert.equal(result.body.count, 100000 ); // 👈 we just inserted 100K records from one table to an other 🤪 clickHouse is so fast 
+➡️ result = await ctxResolve.DROP_TABLE('default', 'usage1');
+➡️ assert.equal(result.statusCode, 200);
 ```
 <!--usageEnd-->
 -   ## more examples:<br>
@@ -122,7 +148,7 @@ You can limit output verbosity by setting logLevel variable in /config.js to one
 ## ❔ Questions - Issues
 - For any suggestions, questions or bugs, feel free to create an <a href="https://github.com/nickmilon/acropolis-ch/issues">issue</a>
 ## 🙏 Acknowledgements:
-Many thanks to&nbsp;&nbsp;<a href="https://rapchat.com"><img src="./resources/rapchat.svg" alt="rapchat.com" height=14></a> for partially funding initial development of this project.
+Many thanks to&nbsp;&nbsp;<a href="https://rapchat.com"><img src="./resources/rapchat.svg" alt="rapchat.com" height=14 target= "_blank"></a> for partially funding initial development of this project.
  
 ___
 ## 📖 Awesome Resources and further reading:

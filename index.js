@@ -1,3 +1,8 @@
+/**
+ * main entry point for library
+ * @module
+ */
+
 export * from './lib/client.js';
 export * from './lib/clientExt.js';
 export * from './lib/context.js';

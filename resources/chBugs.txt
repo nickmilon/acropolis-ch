@@ -31,3 +31,8 @@ const results = await Promise.all([
 reported but closed !? https://github.com/ClickHouse/ClickHouse/issues/4003 
 ==============================================================
 create table twitter.edgesV81 as twitter.edgesV8  does NOT copy projections
+
+SELECT randomASCII(2)  Exception: Unknown function randomASCII: While processing randomASCII(2) 
+    while in https://clickhouse.com/docs/en/whats-new/changelog/2020/#new-feature-13  it says it is added 
+    and migrated https://github.com/ClickHouse/ClickHouse/issues/5318
+    but randomString(3) works !
