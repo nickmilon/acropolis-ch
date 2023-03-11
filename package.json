@@ -6,11 +6,12 @@
   "main": "index.js",
   "scripts": {
     "null": "echo \"Error: null\" && exit 1",
-    "usageREPL": "NODE_OPTIONS='--experimental-vm-modules --experimental-repl-await'  scripts/usageREPL.js",       
+    "usageREPL": "NODE_OPTIONS='--experimental-vm-modules --experimental-repl-await'  scripts/usageREPL.js",
     "twt-sample-download": "scripts/download-sample.sh",
     "twt-data-import": "scripts/twt-data-import.js",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "test1": "NODE_OPTIONS='--experimental-vm-modules' jest  -t 'test1'",
+    "test1": "NODE_OPTIONS='--experimental-vm-modules' jest -t 'test1'",
+    "testNM": "jest  -t 'test1'",
     "testWatch": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles --watch"
   },
   "repository": {
@@ -44,16 +45,18 @@
     "bail": 1,
     "testEnvironment": "jest-environment-node",
     "transform": {},
-    "coverageReporters": ["html"]
+    "coverageReporters": [
+      "html"
+    ]
   },
   "dependencies": {
     "acropolis-nd": "github:nickmilon/acropolis-nd",
-    "undici": "4.16.04"
+    "undici": "^5.20.0"
   },
   "globals": {
     "__inspect__": false
   },
   "temp": {
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles"
+    "postinstall": "cp -u 'acropolis-ch-conf.js' $INIT_CWD"
   }
 }

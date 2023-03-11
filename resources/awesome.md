@@ -43,7 +43,15 @@
 - Business, news etc (non technical):
     - [Why Lightspeed invested in ClickHouse](https://medium.com/lightspeed-venture-partners/why-lightspeed-invested-in-clickhouse-a-database-built-for-speed-b67ec2d5f041 )
 
-
+- Machine Learning  
+    - [Machine Learning with ClickHouse by Yandex](https://presentations.clickhouse.com/meetup31/ml.pdf)
+    - [mimdsdb]( https://mindsdb.com/clickhouse-machine-learning)
+    - [mindsdb post](https://medium.com/mindsdb/machine-learning-on-large-multivariate-time-series-in-clickhouse-database-70be0eb16708)
+    - catboost
+      - [site](https://yandex.com/dev/catboost/)
+      - [post](https://altinity.com/blog/2018/1/18/clickhouse-for-machine-learning)
+       
+   
 ### undici:
 - [synoptic manual](https://morioh.com/p/94561b205a3d)
 - [manual](https://undici.nodejs.org/)

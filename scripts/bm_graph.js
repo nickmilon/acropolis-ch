@@ -8,7 +8,7 @@ import { sumsCounter } from 'acropolis-nd/lib/Solon.js';
 import { ConLog } from 'acropolis-nd/lib/scripts/nodeOnly.js';
 import { Graph } from '../lib/solutions/graph.js';
 import { CHclientExt } from '../lib/clientExt.js';
-import { confCH } from '../config.js';
+import { confCH } from '../acropolis-ch-conf.js ';
 import { formatStr } from '../lib/sql/varsCH/formats.js';
 
 class ScrollOnColumn extends PageScroll {

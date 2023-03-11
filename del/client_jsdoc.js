@@ -4,7 +4,8 @@
 /* eslint-disable camelcase */
 
 /**
- * Client class and extras
+ * This is the main module of this library
+ * contains CHclient class and some helpers ()
  * @module
  */
 
@@ -36,7 +37,7 @@ export const flagsCH = new Enum32(['spare1', 'spare2', 'resolve', 'emitOnRequest
  * This is the suggested approach when expected data are not that many (a few hundred rows)
  * If resolveBody flag is not set you can resolve the Promise your self by resolving body.json() or body.text()
  * Alternatively you can consume the StreamReadable by piping it or whatever.
- *  in case you neither consume or resolve the body you MUST destroy it by calling body.destroy()
+ * in case you neither consume or resolve the body you MUST destroy it by calling body.destroy()
  */
 
 /**
@@ -69,13 +70,17 @@ const chQueryStr = (sql = '', chOpts = {}) => {
 };
 
 /**
- * Creates an instance of CHclient,
- * @param {string} uri of ch http server e.g.: uri: 'http://localhost:8123'
- * @param {Object} [credentials={ user: 'default', password: '' }] access credentials
- * @param {Object} options [{ connections = 10, name = 'CHclient'}] number of connections in pool, a name
- * @fires ['Error', 'Request', 'Created', 'Closed', 'ServerVerified'
+ * A node HTTP client for {@link https://clickhouse.com/ clickhouse} based on {@link https://undici.nodejs.org/#/ undici}
+ * @class CHclient
+ * @fires ['Error', 'Request', 'Created', 'Closed', 'ServerVerified']
  */
 export class CHclient {
+  /**
+   * Creates an instance of CHclient,
+   * @param {string} uri of ch http server e.g.: uri: 'http://localhost:8123'
+   * @param {Object} [credentials={ user: 'default', password: '' }] access credentials
+   * @param {Object} options [{ connections = 10, name = 'CHclient'}] number of connections in pool, a name
+   */
   constructor(uri, credentials = { user: 'default', password: '' }, {
     connections = 10,
     name = 'CHclient',
@@ -153,7 +158,7 @@ export class CHclient {
     try {
       ({ statusCode, headers, trailers, body } = await this._client.request({ path, method, headers: this._headers, body: reqBody }));
       respFormat = headers['x-clickhouse-format'];
-      body.('utf8');
+      // body.setEncoding('utf8');  see https://github.com/nodejs/undici/issues/1125
       // ------------------------------------------------------------------ resolve closure
       const resolveBody = async () => {
         if (chFormatsProps[respFormat]?.dec) {

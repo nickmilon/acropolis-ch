@@ -15,6 +15,7 @@ we decided to write this one from scratch, reasons been among others:
     onboarding easy for developers.
 -   Node's native standard http library is quite problematic with a huge back-log of issues and performance is not optimal.
     Node team is thinking of retiring it and probably replace/substitute it with undici which is already under [Node's organization umbrella](https://twitter.com/matteocollina/status/1298148085210775553?lang=en).
+This is not a CMS tool.
 
 ## Conventions - Design - Features:
 - Library only supports ESM modules (imports) commonjs (require) is not supported, If you need commonjs support feel free to fork the library or transpile it somehow to commonjs.<br>
@@ -140,7 +141,7 @@ and particular use cases by providing expandable building blocks. Also we try to
 Almost full coverage tests are provided in [tests folder](__tests__). To run the tests you will need to install [jest](https://jestjs.io/) and <br>
 ```npm run test ```<br>
 Tests are also meant to demonstrate usage and best practices that's why plenty of output is provided on console during test runs.<br>
-You can limit output verbosity by setting logLevel variable in /config.js to one of available levels.
+You can limit output verbosity by setting logLevel variable in acropolis-ch-conf.js to one of available levels.
 ## Disclosure
 - This project is in no way connected to official clickhouse or undici projects.
 - Library has been used in production without issues for quite some time, still we encourage to do your own testing/evaluation before using in production.

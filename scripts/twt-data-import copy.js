@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { confCH, runOptions } from '../config.js';
+import { confCH, runOptions } from '../acropolis-ch-conf.js ';
 // import  *  as foo from 'node:zlib' ;
 // console.dir(foo)
 import { createGunzip, unzip  } from 'node:zlib';

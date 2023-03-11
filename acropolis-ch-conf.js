@@ -10,7 +10,7 @@ const confCH = { // clickhouse
   credentials: { user: 'default', password: '123' },
 };
 const runOptions = {
-  tests: { logLevel: 'debug' },
+  tests: { logLevel: 'log' },
 };
 
 export { confCH, runOptions };

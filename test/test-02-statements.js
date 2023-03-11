@@ -11,6 +11,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
 
+import { describe, it, before, after } from 'node:test';
+import { strict } from 'node:assert';
+
 import { setTimeout as setTimeoutAsync } from 'timers/promises';
 import { setInterval } from 'timers';
 import { pipeline } from 'stream/promises';
@@ -46,13 +49,10 @@ import { engine } from '../lib/structures/tests.js';
 import { coreTypes } from '../lib/sql/varsCH/types.js';
 import { isFloat32Array } from 'util/types';
 
-const logLevel = runOptions?.tests?.logLevel || 'log';
-
-const logger = (logLevel === 'silent') ? consolDummy : new ConLog(logLevel, { inclTS: true });
-
-// eslint-disable-next-line no-console
-console.log(`set logLevel variable in config.js in one of available Levels: ${ConLog.availableLevelsStr()}`);
-
+ 
+const logger = (Object.keys(ConLog.levels).includes(process.argv.at(2) )) ? 
+    new ConLog(process.argv[2], { inclTS: true, inspectDefaults: {colors: true} }) : consolDummy
+ 
 describe('sql statements II', () => {
   let client;
   let result;
@@ -69,7 +69,7 @@ describe('sql statements II', () => {
       logger.inspectIt({ bodyData, result, statusCodeExpected }, 'req');
       logger.log(sql);
     }
-    expect(result.statusCode).toBe(statusCodeExpected);
+    strict.equal(result.statusCode, statusCodeExpected); 
     return result;
   };
 
@@ -78,20 +78,20 @@ describe('sql statements II', () => {
     const { body } = result;
     body.data = body.data.flat();
     if (numOfRows !== undefined) {
-      expect(body.rows).toBe(numOfRows);
-      expect(body.data.length).toBe(numOfRows);
+      strict.equal(body.rows, numOfRows); 
+      strict.equal(body.data.length, numOfRows); 
     }
-    if (firstNum !== undefined) { expect(body.data[0]).toBe(firstNum); }
+    if (firstNum !== undefined) { strict.equal(body.data[0], firstNum); }
     return result;
   };
 
-  beforeAll(async () => {
+  before(async () => {
     client = new CHclient(confCH.uri, confCH.credentials, { connections: 10 });
     // client.defaultFlags = ['resolve', 'throwClient', 'throwNon200']; 
     await req(CREATE_DATABASE(testDb));
   });
 
-  afterAll(async () => {
+  after(async () => {
     // await req(DROP_DATABASE(testDb));
     await setTimeoutAsync(200);
     await client.close();
@@ -174,7 +174,7 @@ describe('sql statements II', () => {
       await pipeline(resultReader.body, transformStream); // process.stdout)
       resultsOut = await resultsOut; // if we want to check results do an await here after stream ends;
       if (resultsOut.statusCode !== 200) { logger.dir({ resultsOut });}
-      expect(resultsOut.statusCode).toBe(200);
+      strict.equal(resultsOut.statusCode, 200);
       return { counters: transformStream.counters };
     };
     // ----------------------------------------------------------------------------------------
@@ -186,21 +186,20 @@ describe('sql statements II', () => {
     // --------------------------------------------------------------- test ReadableArrOrFn with an array
     const arr = Array(10).fill(`(${999}, 'the quick brown fox', randomPrintableASCII(20))\n`);
     result = await client.request(...INSERT_INTO(undefined, nsTable1, new ReadableArrOrFn(arr), { FORMAT: 'Values', columns }));
-    expect(result.statusCode).toBe(200);
+    strict.equal(result.statusCode, 200);
     await req(TRUNCATE_TABLE(undefined, nsTable1));
     // ---------------------------------------------------------------
     const readStream = new ReadableArrOrFn(dataFnClosure(rowsCount));
     const sqlArr = INSERT_INTO(undefined, nsTable1, readStream, { FORMAT: 'Values', columns }); // !Values is the only format we can insert functions
     logger.time(`INSERT_INTO rows: ${rowsCount}`);
     result = await client.request(...sqlArr);
-    expect(result.statusCode).toBe(200);
+    strict.equal(result.statusCode, 200);
     logger.timeEnd(`INSERT_INTO rows: ${rowsCount}`);
     const chOpts = settingsCH.output_format_json_quote_64bit_integers(0); // BTW check if chOpts are working
     result = await client.request(SELECT('sum(id) AS sumNatNum', { FROM: nsTable1, FORMAT: formatStr.JSONEachRow }), '', { chOpts });
-    expect(result.statusCode).toBe(200);
-    expect(result.body.sumNatNum).toBe(sumOfNaturalNumbers(rowsCount)); // like checksum;
+    strict.equal(result.body.sumNatNum, sumOfNaturalNumbers(rowsCount) ); // like checksum;
     result = await client.request(checkCRCs(nsTable1));
-    expect(result.statusCode).toBe(200);
+    strict.equal(result.statusCode, 200);
     const crcObj1 = result.body;  // save it to compare later with table2
 
     const parserFormatsAvailable = rxDefaultRowMach(undefined, true).filter((x) => (!x.includes('Strings')));
@@ -214,10 +213,10 @@ describe('sql statements II', () => {
       // await setTimeoutAsync(100);  // let it stabilze counters etc //
       // expect(counters.rows - rowsCount).toBe(rowsCount ); // we outputted all rows
       result = await client.request(checkCRCs(nsTable2)); // check crc etc to make sure we have copied properly
-      expect(result.statusCode).toBe(200);
+      strict.equal(result.statusCode, 200);
       const crcObj2 = result.body;
-      expect(crcObj1.sumRow).toBe(crcObj2.sumRow);
-      expect(crcObj1.sumID1).toBe(crcObj2.sumID1);
+      strict.equal(crcObj1.sumRow, crcObj2.sumRow);
+      strict.equal(crcObj1.sumID1, crcObj2.sumID1);
       if (crcObj1.sumCRC !== crcObj2.sumCRC) {
         result = await client.request(checkStringMismatch(nsTable1, nsTable2));
         logger.warn(`${msg} following (or more) rows have mismatches\n${result.body}\n`);
@@ -243,13 +242,13 @@ describe('sql statements II', () => {
       logger.inspectIt({ pageNumber, data, pg }, 'scrolling ');
       data.forEach((record) => { counter[record.id] = counter[record.id] ? counter[record.id] + 1 : 1; }); // just for checking
       if (data.length > 0 && Math.sign(scrollVector === 1)) { // check only while forward
-        expect(data[0].pageNumber).toBe(pageNumber);
+        strict.equal(data[0].pageNumber, pageNumber);
       }
       if (pg.position === 1) { scrollVector = -6; }  // reached the end lets reverse course with page size 6 this time
       pageNumber += Math.sign(scrollVector);
       where = (Math.sign(scrollVector) === 1) ? pg.next : pg.prev;
     } while (pg.position !== -1); // till we reach start approaching from end
-    expect(Object.keys(counter).length).toBe(20); // we visited all records at least once (actually 2 except last page forward)
+    strict.equal(Object.keys(counter).length, 20); // we visited all records at least once (actually 2 except last page forward)
   });
 
   it('mutations', async () => {
@@ -310,7 +309,7 @@ describe('sql statements II', () => {
     const context = createContext(client, { chOpts: {}, flags: flagsCH.mapFlgFI.resolve });
     await context.DROP_TABLE(testDb, 'allTypes');
     result = await context.CREATE_TABLE_fromSchema(testDb, 'allTypes', coreTypesStruct(), { ENGINE: 'MergeTree ORDER BY col_Int8' });
-    expect(result.statusCode).toBe(200);
+    strict.equal(result.statusCode, 200);
     let maxMin;
     const maxMinArr = ['min', 'max'];
     const supportedFormats = ['JSON', 'JSONCompact', 'JSONCompactEachRow'];
@@ -325,7 +324,7 @@ describe('sql statements II', () => {
       const dataJSON = JSON.stringify(dataOriginal);
       result = await context.INSERT_INTO(testDb, 'allTypes', dataJSON, { FORMAT: formatStr.JSONEachRow });
       if (result.statusCode !== 200) { logger.inspectIt(result, dataJSON, 'INSERT_INTO'); }
-      expect(result.statusCode).toBe(200);
+      strict.equal(result.statusCode, 200);
       for (const formatIdx in supportedFormats) {
         const FORMAT = supportedFormats[formatIdx];
         logger.debug(`checking ${maxMin} with format ${FORMAT}`);
@@ -339,7 +338,7 @@ describe('sql statements II', () => {
         const source = dataFromCoreTypes(maxMin, false);
         const rEqual = roughlyEqualObj(source, data);
         if (!rEqual) { logger.inspectIt({ source, data, rEqual }, 'not roughly Equal'); }
-        expect(rEqual).toBe(true);
+        strict.ok(rEqual);
       }
     }
 
@@ -356,7 +355,7 @@ describe('sql statements II', () => {
 
     await context.TRUNCATE_TABLE(testDb, 'allTypes');
     response = await context.SELECT('*', { FROM: 'testCH.allTypesRand', WHERE: undefined, LIMIT: '100', FORMAT: formatStr.JSONCompact }); // max 127
-    expect(response.statusCode).toBe(200);
+    strict.equal(response.statusCode, 200);
     const originalData = response.body.data;
     // logger.inspectIt({ originalData }, 'originalData');
     originalData.forEach((x, idx) => { x[x.length - 1] = idx; }); // so we can use it as ORDER BY in select
@@ -369,7 +368,7 @@ describe('sql statements II', () => {
     for (const idx in originalData) {
       result = await context.INSERT_INTO(testDb, 'allTypes', JSON.stringify(originalData[idx]), { FORMAT: formatStr.JSONCompactEachRow });
       if (result.statusCode !== 200) { logger.inspectIt(result, 'INSERT_INTO'); }
-      expect(result.statusCode).toBe(200);
+      strict.equal(result.statusCode, 200);
     }
     response = await context.SELECT('*', { FROM: `${allTypesNS}`, ORDER_BY: 'col_counter ASC', FORMAT: formatStr.JSONCompact });
     data = response.body.data;
@@ -377,7 +376,7 @@ describe('sql statements II', () => {
     originalDataCopy.forEach((source, idx) => {
       const rEqual = roughlyEqualObj(source, data[idx]);
       if (!rEqual) { logger.inspectIt({ source, dataRecord: data[idx], rEqual }, 'not roughly Equal'); }
-      expect(rEqual).toBe(true);
+      strict.ok(rEqual);
     });
   });
 
@@ -442,9 +441,11 @@ describe('sql statements II', () => {
     await check(SELECT('*', { FROM: 'testSelect', FORMAT: formatStr.JSONCompact }), 10);
     await req(TRUNCATE_TABLE(undefined, 'testSelect'));
     await check(SELECT('*', { FROM: 'testSelect', FORMAT: formatStr.JSONCompact }), 0);
-    result = await req(EXISTS('TABLE', undefined, 'testSelect', { FORMAT: formatStr.JSONCompactEachRow })); expect(result.body[0]).toBe(1);
+    result = await req(EXISTS('TABLE', undefined, 'testSelect', { FORMAT: formatStr.JSONCompactEachRow })); 
+    strict.equal(result.body[0], 1);
     logger.inspectIt({ result });
-    result = await req(EXISTS('TABLE', undefined, 'testSelectXXXX123')); expect(result.body).toBe('0\n');
+    result = await req(EXISTS('TABLE', undefined, 'testSelectXXXX123')); 
+    strict.equal(result.body, '0\n');
     result = await req(SHOW_CREATE('TABLE', undefined, 'testSelect', { FORMAT: undefined }));
     await req(DROP_TABLE(undefined, 'testSelect'));
   });
@@ -461,23 +462,23 @@ describe('sql statements II', () => {
 
     context = createContext(); // no client specified all calls will return sql statements
     sqlStr = await context.EXISTS('TABLE', testDb, tbContext1);
-    expect(sqlStr.includes('EXIST')).toBeTruthy();  // it is a a string;
+    strict.ok(sqlStr.includes('EXIST'));  // it is a a string;
     result = await req(sqlStr);  // should return status 200;
 
     context = createContext(client, { chOpts: {}, flags: flagsCH.mapFlgFI.resolve });  // client and flags specified;
     result = await context.EXISTS('TABLE', testDb, tbContext1); // now we can call it to execute against the client
-    expect(result.statusCode).toBe(200);
+    strict.equal(result.statusCode, 200);
     result = await context.TRUNCATE_TABLE(testDb, tbContext1); // or execute directly from context
-    expect(result.statusCode).toBe(200);
-    expect(typeof result.body).toBe('string');  // we resolved body by specifying flag resolve;
+    strict.equal(result.statusCode, 200);
+    strict.equal(typeof result.body, 'string');  // we resolved body by specifying flag resolve;
 
     context = createContext(client, { chOpts: {}, flags: 0 }); // no flags
     result = await context.EXISTS('TABLE', testDb, tbContext1);
-    expect(typeof result.body).toBe('object'); // coz we din't resolve;
+    strict.equal(typeof result.body, 'object'); // coz we din't resolve;
     // const tbContext1 = 'tbContext1';
     context = createContext(client, { callback: (results) => results.statusCode, flags: flagsCH.flagsToNum(['resolve']) });
     result = await context.EXISTS('TABLE', testDb, tbContext1);
-    expect(result).toBe(200); // callback returns only statusCode
+    strict.equal(result, 200); // callback returns only statusCode
   });
 
   /**
