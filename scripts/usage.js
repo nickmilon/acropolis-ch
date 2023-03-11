@@ -7,12 +7,12 @@
  * 2) uses dynamic imports (a function) in place of import statements as in JS modules.
  * ❗️So you will have to adjust for those if you reuse part of this code
  */
-const impDir = process.cwd().endsWith('integration') ? '/_code/node/acropolis-ch' : '.'; // {{DEL}}
+const impDir = process.cwd().endsWith('integration') ? '/_nm/prgs/node/acropolis-ch' : '.'; // {{DEL}}
 // 👇❗️in your modules replace with: import { CHclient, ...  } from 'acropolis-ch'
 const { CHclient, flagsCH, createContext, formatStr } = await import(`${impDir}/index.js`)
 const { stdoutMsg }  = await import(`${impDir}/scripts/usageAux.js`)  // {{DEL}}
 // 👇just for easy client configuration (provide your parameters here)
-const confCH = { uri: 'http://localhost:8123', credentials: { user: 'default', password: 'nickmilon' } };
+const confCH = { uri: 'http://vm-srv:8123', credentials: { user: 'default', password: '123' } };
 // 👇create client instance with given parameters
 const client = new CHclient(confCH.uri, confCH.credentials, { connections: 10 });
 

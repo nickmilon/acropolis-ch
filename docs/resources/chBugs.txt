@@ -1,0 +1,38 @@
+===================================================================
+ALTER TABLE twitter.edgesV2
+    ADD COLUMN `binRel` UInt64 MATERIALIZED nm_Pack32(parent, child)
+ALTER TABLE twitter.edgesV2
+    MATERIALIZE COLUMN binRel
+
+Query id: bfddc433-bcc9-4118-bf01-ba3afaf5b1da
+0 rows in set. Elapsed: 0.003 sec. 
+Received exception from server (version 21.11.3):
+Code: 46. DB::Exception: Received from localhost:9000. DB::Exception: Unknown function nm_Pack32: While processing nm_Pack32(parent, child). (UNKNOWN_FUNCTION)
+select nm_Pack32(1,2)
+
+SELECT nm_Pack32(1, 2)
+
+Query id: f32e9596-5982-490a-9c67-c3814fa98f2d
+
+┌─toUInt64(bitOr(bitShiftLeft(toUInt64(1), 32), 2))─┐
+│                                        4294967298 │
+========================================================================================================
+sample panic crash
+
+================================================================
+
+const results = await Promise.all([
+      this.client.request(sql.DROP_DATABASE(this._props.dbName), null, { chOpts: { session_id } }),
+      this.client.request(sql.CREATE_DATABASE(this._props.dbName), null, { chOpts: { session_id } }),
+      this.client.request(this.gSql.structNodes(), null, { chOpts: { session_id } }),
+      this.client.request(this.gSql.structEdges(), null, { chOpts: { session_id } }),
+]);
+=> Code: 373. DB::Exception: Session is locked by a concurrent client. (SESSION_IS_LOCKED) (version 21.11.3.6 (official build))
+reported but closed !? https://github.com/ClickHouse/ClickHouse/issues/4003 
+==============================================================
+create table twitter.edgesV81 as twitter.edgesV8  does NOT copy projections
+
+SELECT randomASCII(2)  Exception: Unknown function randomASCII: While processing randomASCII(2) 
+    while in https://clickhouse.com/docs/en/whats-new/changelog/2020/#new-feature-13  it says it is added 
+    and migrated https://github.com/ClickHouse/ClickHouse/issues/5318
+    but randomString(3) works !

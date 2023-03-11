@@ -49,7 +49,7 @@ and particular use cases by providing expandable building blocks. Also we try to
 ```js 
 
 /**
-...  * @summary: usage example 🤯
+...  * @summary usage example 🤯
 ...  * This is a script modified to run under Node's REPL to produce a usage.md file
 ...  * therefore it contains some strange syntax that should be not used in a normal module in particular:
 ...  * 1) sometimes uses 'var' for declarations instead of const and/or let
@@ -59,7 +59,7 @@ and particular use cases by providing expandable building blocks. Also we try to
 // 👇❗️in your modules replace with: import { CHclient, ...  } from 'acropolis-ch'
 ➡️ const { CHclient, flagsCH, createContext, formatStr } = await import(`${impDir}/index.js`)
 // 👇just for easy client configuration (provide your parameters here)
-➡️ const confCH = { uri: 'http://localhost:8123', credentials: { user: 'default', password: 'nickmilon' } };
+➡️ const confCH = { uri: 'http://vm-srv:8123', credentials: { user: 'default', password: '123' } };
 // 👇create client instance with given parameters
 ➡️ const client = new CHclient(confCH.uri, confCH.credentials, { connections: 10 });
 
@@ -71,17 +71,17 @@ and particular use cases by providing expandable building blocks. Also we try to
 {
   statusCode: 200,
   headers: {
-    date: 'Sat, 12 Feb 2022 09:40:17 GMT',
+    date: 'Sat, 11 Mar 2023 07:06:52 GMT',
     connection: 'Keep-Alive',
     'content-type': 'application/json; charset=UTF-8',
-    'x-clickhouse-server-display-name': 'Y720',
+    'x-clickhouse-server-display-name': 'vm-srv',
     'transfer-encoding': 'chunked',
-    'x-clickhouse-query-id': '4048dd6b-49b1-4f8d-b54f-3ed2e5d0b8c0',
+    'x-clickhouse-query-id': '4f2696a8-f1d4-48ba-a917-b050a3fa5236',
     'x-clickhouse-format': 'JSON',
-    'x-clickhouse-timezone': 'Europe/Athens',
+    'x-clickhouse-timezone': 'Etc/UTC',
     'keep-alive': 'timeout=3',
-    'x-clickhouse-summary': '{"read_rows":"0","read_bytes":"0","written_rows":"0","written_bytes":"0","total_rows_to_read":"0"}',
-    'x-acropolis-dtEnd': 2022-02-12T09:40:17.341Z
+    'x-clickhouse-summary': '{"read_rows":"3","read_bytes":"24","written_rows":"0","written_bytes":"0","total_rows_to_read":"3","result_rows":"0","result_bytes":"0"}',
+    'x-acropolis-dtEnd': 2023-03-11T07:06:52.594Z
   },
   trailers: {},
   body: {
@@ -89,13 +89,12 @@ and particular use cases by providing expandable building blocks. Also we try to
     data: [ { number: '1' }, { number: '2' }, { number: '3' } ],
     rows: 3,
     rows_before_limit_at_least: 3,
-    statistics: { elapsed: 0.000206268, rows_read: 3, bytes_read: 24 }
+    statistics: { elapsed: 0.001143589, rows_read: 3, bytes_read: 24 }
   }
 }
-➡️ if (result.statusCode === 403 && statusCodePing === 200 ) {  stdoutMsg(`❗️❗️❗️CH http server responds but probably your credentials are wrong\n ${result.body}`); }  // {{DE>>>if (result.statusCode === 403 && statusCodePing === 200 ) {  stdoutMsg(`❗️❗️❗️CH http server responds but probably your credentials are wrong\n ${result.body}`); }  // {{DEL }}
 
 /**
-...  * @summary: CH query demo🚦🤯
+...  * @summary CH query demo🚦🤯
 ...  * All queries to ch are async and return an object { statusCode, body, headers, trailers} when resolved
 ...  * You can read more about client flags in library docs.
 ...  * body can be a string or json or a promise depending on some flag settings and CH format used
@@ -108,10 +107,10 @@ and particular use cases by providing expandable building blocks. Also we try to
 ➡️ result.statusCode; // 👇 statusCode returned by CH is 404 since table doesn't exist as we dropped it already if existed
 404
 ➡️ result.body; // 👇 body contains verbose info for the error
-"Code: 60. DB::Exception: Table default.usage1 doesn't exist. (UNKNOWN_TABLE) (version 22.1.3.7 (official build))\n"
+"Code: 60. DB::Exception: Table default.usage1 doesn't exist. (UNKNOWN_TABLE) (version 23.2.1.2537 (official build))\n"
 
 /**
-...  * @summary: ℹ️💁context usage
+...  * @summary ℹ️💁context usage
 ...  * context simplifies sql statement execution by presetting client and CH options and support of intellisense typing
 ...  * in some editors. Also can be easily extended to support user specific sql queries.
 ...  * Following line creates a client context where flags do not specify flag 'resolve' so body returned by any query 
@@ -134,11 +133,11 @@ and particular use cases by providing expandable building blocks. Also we try to
 ```
 <!--usageEnd-->
 -   ## more examples:<br>
-    - [visit tests code](__tests__)
-    - read library's docs
+    - [visit tests code](test)
+    - [read library's docs](https://nickmilon.github.io/acropolis-ch/)
 ---
 ## Testing:
-Almost full coverage tests are provided in [tests folder](__tests__). To run the tests you will need to install [jest](https://jestjs.io/) and <br>
+Almost full coverage tests are provided in [test folder](test). To run the tests you will need to install [jest](https://jestjs.io/) and <br>
 ```npm run test ```<br>
 Tests are also meant to demonstrate usage and best practices that's why plenty of output is provided on console during test runs.<br>
 You can limit output verbosity by setting logLevel variable in acropolis-ch-conf.js to one of available levels.
@@ -148,9 +147,6 @@ You can limit output verbosity by setting logLevel variable in acropolis-ch-conf
 
 ## ❔ Questions - Issues
 - For any suggestions, questions or bugs, feel free to create an <a href="https://github.com/nickmilon/acropolis-ch/issues">issue</a>
-## 🙏 Acknowledgements:
-Many thanks to&nbsp;&nbsp;<a href="https://rapchat.com"><img src="./resources/rapchat.svg" alt="rapchat.com" height=14 target= "_blank"></a> for partially funding initial development of this project.
- 
 ___
 ## 📖 Awesome Resources and further reading:
 - [see here](resources/awesome.md)
