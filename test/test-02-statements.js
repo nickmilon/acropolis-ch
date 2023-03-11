@@ -53,7 +53,7 @@ import { isFloat32Array } from 'util/types';
 const logger = (Object.keys(ConLog.levels).includes(process.argv.at(2) )) ? 
     new ConLog(process.argv[2], { inclTS: true, inspectDefaults: {colors: true} }) : consolDummy
  
-describe('sql statements II', () => {
+describe('sql statements II', { concurrency: true }, () => {
   let client;
   let result;
   let sqlStr;

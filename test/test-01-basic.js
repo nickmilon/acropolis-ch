@@ -17,11 +17,10 @@ import { confCH } from '../acropolis-ch-conf.js';
 import { sqlTests } from '../lib/structures/tests.js';
 import { filterFormats } from '../lib/sql/varsCH/formats.js';
 
-console.log( ConLog.levels, 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
 const logger = (Object.keys(ConLog.levels).includes(process.argv.at(2) )) ? 
     new ConLog(process.argv[2], { inclTS: true, inspectDefaults: {colors: true} }) : consolDummy
 
- describe('basic functionality', () => {
+ describe('basic functionality',  { concurrency: true }, () => {
   let client;
   let result;
   const testDbName = 'testCH';

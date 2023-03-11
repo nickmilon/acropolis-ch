@@ -1,0 +1,23 @@
+total 96
+drwxrwxr-x 12 milon milon  4096 Mar 11 06:49 .
+drwxrwxr-x 23 milon milon  4096 Mar  6 06:37 ..
+-rw-rw-r--  1 milon milon   499 Mar  7 19:40 acropolis-ch-conf.js
+-rw-rw-r--  1 milon milon     0 Mar 11 07:06 del.txt
+-rw-rw-r--  1 milon milon     0 Jan  1 00:44 del_XXXXX_1
+drwxrwxr-x  6 milon milon  4096 Mar  4 06:20 docs
+drwxrwxr-x  6 milon milon  4096 Feb 17  2022 docs-jsdoc
+drwxrwxr-x  8 milon milon  4096 Mar 11 06:20 .git
+-rw-rw-r--  1 milon milon  1613 Mar  2 03:41 .gitignore
+-rw-rw-r--  1 milon milon   338 Mar  7 03:18 index.js
+drwxrwxr-x  6 milon milon  4096 Mar  4 06:09 lib
+-rw-rw-r--  1 milon milon 11357 Jan 17  2021 LICENSE
+drwxrwxr-x  7 milon milon  4096 Mar 10 07:30 node_modules
+-rw-rw-r--  1 milon milon  1524 Feb 18  2022 out
+-rw-rw-r--  1 milon milon  1879 Mar 11 07:06 package.json
+-rw-rw-r--  1 milon milon  3449 Mar 10 07:30 package-lock.json
+-rw-rw-r--  1 milon milon  9661 Mar  6 06:52 README.md
+drwxrwxr-x  3 milon milon  4096 Mar  5 05:59 resources
+drwxrwxr-x  2 milon milon  4096 Jan  5 07:52 scripts
+drwxrwxr-x  2 milon milon  4096 Mar 10 03:57 test
+drwxrwxr-x  2 milon milon  4096 Mar  5 04:17 __tests__
+drwxrwxr-x  2 milon milon  4096 Oct 19  2021 .vscode

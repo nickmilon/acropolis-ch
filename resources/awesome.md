@@ -26,10 +26,6 @@
     - [twitter official clickhouse @ClickHouseDB ]( https://twitter.com/ClickHouseDB)
     - [twitter @chistadata ](https://twitter.com/chistadata)
 
-   
-
--   careers, jobs:
-    - [chistadata ](https://chistadata.com/careers/)
 
 -   github
     - actions
