@@ -1,6 +1,6 @@
 
 /**
- * @summary usage example 🤯
+ * usage example 🤯s
  * This is a script modified to run under Node's REPL to produce a usage.md file
  * therefore it contains some strange syntax that should be not used in a normal module in particular:
  * 1) sometimes uses 'var' for declarations instead of const and/or let

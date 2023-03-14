@@ -1,6 +1,6 @@
 [1G[0J>>>[4G
 [1G[0J>>>[4G/**
-[1G[0J... [5G * @summary usage example 🤯
+[1G[0J... [5G * usage example 🤯s
 [1G[0J... [5G * This is a script modified to run under Node's REPL to produce a usage.md file
 [1G[0J... [5G * therefore it contains some strange syntax that should be not used in a normal module in particular:
 [1G[0J... [5G * 1) sometimes uses 'var' for declarations instead of const and/or let
@@ -40,17 +40,17 @@
 {
   statusCode: [33m200[39m,
   headers: {
-    date: [32m'Sat, 11 Mar 2023 15:49:49 GMT'[39m,
+    date: [32m'Tue, 14 Mar 2023 03:07:09 GMT'[39m,
     connection: [32m'Keep-Alive'[39m,
     [32m'content-type'[39m: [32m'application/json; charset=UTF-8'[39m,
     [32m'x-clickhouse-server-display-name'[39m: [32m'vm-srv'[39m,
     [32m'transfer-encoding'[39m: [32m'chunked'[39m,
-    [32m'x-clickhouse-query-id'[39m: [32m'd42fe0b8-7337-436b-b295-7c342157ebbf'[39m,
+    [32m'x-clickhouse-query-id'[39m: [32m'1e649ff4-ee25-4288-8d4a-aa1f805ca06d'[39m,
     [32m'x-clickhouse-format'[39m: [32m'JSON'[39m,
     [32m'x-clickhouse-timezone'[39m: [32m'Etc/UTC'[39m,
     [32m'keep-alive'[39m: [32m'timeout=3'[39m,
     [32m'x-clickhouse-summary'[39m: [32m'{"read_rows":"3","read_bytes":"24","written_rows":"0","written_bytes":"0","total_rows_to_read":"3","result_rows":"0","result_bytes":"0"}'[39m,
-    [32m'x-acropolis-dtEnd'[39m: [35m2023-03-11T15:49:49.647Z[39m
+    [32m'x-acropolis-dtEnd'[39m: [35m2023-03-14T03:07:09.948Z[39m
   },
   trailers: {},
   body: {
@@ -58,7 +58,7 @@
     data: [ { number: [32m'1'[39m }, { number: [32m'2'[39m }, { number: [32m'3'[39m } ],
     rows: [33m3[39m,
     rows_before_limit_at_least: [33m3[39m,
-    statistics: { elapsed: [33m0.009139902[39m, rows_read: [33m3[39m, bytes_read: [33m24[39m }
+    statistics: { elapsed: [33m0.001577646[39m, rows_read: [33m3[39m, bytes_read: [33m24[39m }
   }
 }
 [1G[0J>>>[4Gif (result.statusCode === 403 && statusCodePing === 200 ) {  stdoutMsg(`❗️❗️❗️CH http server responds but probably your credentials are wrong\n ${result.body}`); }[1G[0J>>>if (result.statusCode === 403 && statusCodePing === 200 ) {  stdoutMsg(`❗️❗️❗️CH http server responds but probably your credentials are wrong\n ${result.body}`); }  [1G // {{DEL}}
