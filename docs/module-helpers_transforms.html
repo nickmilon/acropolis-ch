@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Adding favicon -->
+    
+    <link rel="icon" href="resources/images/favicon.ico" />
+    
+
+    <!-- Adding meta -->
+    
+    
+    <meta name="Author" content="@NickMilon" />
+    
+    <meta name="Description" content="a Node js HTTP client for clickhouse" />
+    
+    
+
+    <!-- Adding external script-->
+    
+
+    <!-- Adding external style-->
+    
+
+    <!-- Adding scripts-->
+    
+
+    <!-- Adding style-->
+    
+    
+    <link type="text/css" rel="stylesheet" href="docs.css">
+    
+    
+
+    <!-- Adding overlay script-->
+    
+
+    <!-- Adding overlay style-->
+    
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.0/css/OverlayScrollbars.min.css"
+      integrity="sha512-pYQcc5kgavar0ah58/O8hw/6Tbo3mWlmQTmvoi1i96cBz7jQYS9as5J+Nfy32rAHY6CgR9ExwnFMcBdGVcKM7g=="
+      crossorigin="anonymous" />
+    
+
+
+    <title>
+      helpers/transforms
+    </title>
+
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/reset.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
+    
+    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="display:none">
+    <defs>
+        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
+            <g>
+                <path
+                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
+                <path
+                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
+            </g>
+        </symbol>
+        <symbol id='search-icon' viewBox="0 0 512 512">
+            <g>
+                <g>
+                    <path
+                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
+                </g>
+            </g>
+            <g>
+                <g>
+                    <path
+                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
+                </g>
+            </g>
+        </symbol>
+        <symbol id="down-icon" viewBox="0 0 16 16">
+            <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
+            >
+            </path>
+        </symbol>
+    </defs>
+</svg>
+  </head>
+
+  <body>
+
+    <nav class="navbar" id="navbar">
+      <h2><a href="index.html"><p class='nm-topHeader'>acropolis-ch js http client for: <a href='https://clickhouse.com' target= '_blank'><img src='./resources/images/clickhouse.svg' alt='clickhouse.com' height=14>clickhouse</a></p></a></h2><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><ul><li class="menu-li"><a href='https://github.com/nickmilon/acropolis-ch' class=' menu-link' id='github' target='_blank'>github</a></li><li class="menu-li"><a href='https://www.npmjs.com/package/acropolis-ch' class=' menu-link' id='npm' target='_blank'>npm</a></li><li class="menu-li"><a href='https://nickmilon.github.io/acropolis-ch/' class=' menu-link' id='' target='_blank'>website</a></li></ul><div class="accordion collapsed" id="746683" > <h3 class="accordion-heading">Modules<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="module-client.html">client</a></li><li class="accordion collapsed child" id=3642731><div class="accordion-heading child"><a href="module-context.html">context</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="module-context.html#.contextStatementsAppend">contextStatementsAppend</a></li><li data-type='method'><a href="module-context.html#.contextStatementsGet">contextStatementsGet</a></li><li data-type='method'><a href="module-context.html#.contextStatementsSet">contextStatementsSet</a></li></ul></li><li class="accordion-list" id=""><a href="module-helpers_errors.html">helpers/errors</a></li><li class="accordion-list" id=""><a href="module-helpers_streams.html">helpers/streams</a></li><li class="accordion collapsed child" id=2278858><div class="accordion-heading child"><a href="module-helpers_transforms.html">helpers/transforms</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="module-helpers_transforms.html#.bodyValuesToArr2d">bodyValuesToArr2d</a></li><li data-type='method'><a href="module-helpers_transforms.html#.castData">castData</a></li><li data-type='method'><a href="module-helpers_transforms.html#.castResponse">castResponse</a></li><li data-type='method'><a href="module-helpers_transforms.html#.castTransform">castTransform</a></li><li data-type='method'><a href="module-helpers_transforms.html#.columnsFromStructArr">columnsFromStructArr</a></li><li data-type='method'><a href="module-helpers_transforms.html#.columnsFromStructStr">columnsFromStructStr</a></li><li data-type='method'><a href="module-helpers_transforms.html#.customReplacer">customReplacer</a></li><li data-type='method'><a href="module-helpers_transforms.html#.dataTransform">dataTransform</a></li><li data-type='method'><a href="module-helpers_transforms.html#.JSONstringifyCustom">JSONstringifyCustom</a></li><li data-type='method'><a href="module-helpers_transforms.html#.metaTrim">metaTrim</a></li><li data-type='method'><a href="module-helpers_transforms.html#.rxDefaultRowMach">rxDefaultRowMach</a></li><li data-type='method'><a href="module-helpers_transforms.html#.typesFromMeta">typesFromMeta</a></li></ul></li><li class="accordion-list" id=""><a href="module-solutions_graph.html">solutions/graph</a></li><li class="accordion-list" id=""><a href="module-solutions_graphSimulation.html">solutions/graphSimulation</a></li><li class="accordion-list" id=""><a href="module-solutions_graphSql.html">solutions/graphSql</a></li><li class="accordion-list" id=""><a href="module-solutions_pagination.html">solutions/pagination</a></li><li class="accordion collapsed child" id=9816621><div class="accordion-heading child"><a href="module-sql_auxillary.html">sql/auxillary</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="module-sql_auxillary.html#.tableStructure">tableStructure</a></li></ul></li><li class="accordion collapsed child" id=5795255><div class="accordion-heading child"><a href="module-sql_basic.html">sql/basic</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="module-sql_basic.html#.ALTER_TABLE_DELETE">ALTER_TABLE_DELETE</a></li><li data-type='method'><a href="module-sql_basic.html#.ALTER_TABLE_UPDATE">ALTER_TABLE_UPDATE</a></li><li data-type='method'><a href="module-sql_basic.html#.CREATE_DATABASE">CREATE_DATABASE</a></li><li data-type='method'><a href="module-sql_basic.html#.CREATE_TABLE_fromSchema">CREATE_TABLE_fromSchema</a></li><li data-type='method'><a href="module-sql_basic.html#.CREATE_TABLE_fromSelect">CREATE_TABLE_fromSelect</a></li><li data-type='method'><a href="module-sql_basic.html#.CREATE_TABLE_fromTb">CREATE_TABLE_fromTb</a></li><li data-type='method'><a href="module-sql_basic.html#.DESC">DESC</a></li><li data-type='method'><a href="module-sql_basic.html#.DROP_DATABASE">DROP_DATABASE</a></li><li data-type='method'><a href="module-sql_basic.html#.DROP_TABLE">DROP_TABLE</a></li><li data-type='method'><a href="module-sql_basic.html#.EXISTS">EXISTS</a></li><li data-type='method'><a href="module-sql_basic.html#.INSERT_INTO">INSERT_INTO</a></li><li data-type='method'><a href="module-sql_basic.html#.INSERT_INTO_JSONEachRow">INSERT_INTO_JSONEachRow</a></li><li data-type='method'><a href="module-sql_basic.html#.OPTIMIZE_TABLE">OPTIMIZE_TABLE</a></li><li data-type='method'><a href="module-sql_basic.html#.rawSql">rawSql</a></li><li data-type='method'><a href="module-sql_basic.html#.SHOW_CREATE">SHOW_CREATE</a></li><li data-type='method'><a href="module-sql_basic.html#.TRUNCATE_TABLE">TRUNCATE_TABLE</a></li></ul></li><li class="accordion collapsed child" id=1206573><div class="accordion-heading child"><a href="module-sql_fragments.html">sql/fragments</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="module-sql_fragments.html#.formatOrJSON">formatOrJSON</a></li><li data-type='method'><a href="module-sql_fragments.html#.limitOffset">limitOffset</a></li><li data-type='method'><a href="module-sql_fragments.html#.nameSpace">nameSpace</a></li><li data-type='method'><a href="module-sql_fragments.html#.nameSpaceOrTb">nameSpaceOrTb</a></li><li data-type='method'><a href="module-sql_fragments.html#.sqlPrettify">sqlPrettify</a></li><li data-type='method'><a href="module-sql_fragments.html#.strIfK">strIfK</a></li><li data-type='method'><a href="module-sql_fragments.html#.strIfKV">strIfKV</a></li><li data-type='method'><a href="module-sql_fragments.html#.strK">strK</a></li><li data-type='method'><a href="module-sql_fragments.html#.strKOperatorV">strKOperatorV</a></li><li data-type='method'><a href="module-sql_fragments.html#.strKV">strKV</a></li><li data-type='method'><a href="module-sql_fragments.html#.tbStruct">tbStruct</a></li><li data-type='method'><a href="module-sql_fragments.html#.tbStructParens">tbStructParens</a></li><li data-type='method'><a href="module-sql_fragments.html#.tbStructParse">tbStructParse</a></li><li data-type='method'><a href="module-sql_fragments.html#.tbStructParseObj">tbStructParseObj</a></li><li data-type='method'><a href="module-sql_fragments.html#.vectorToOrderLimit">vectorToOrderLimit</a></li></ul></li><li class="accordion-list" id=""><a href="module-sql_functionsUDF.html">sql/functionsUDF</a></li><li class="accordion collapsed child" id=7083249><div class="accordion-heading child"><a href="module-sql_select.html">sql/select</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="module-sql_select.html#.limitOffset">limitOffset</a></li><li data-type='method'><a href="module-sql_select.html#.SELECTraw">SELECTraw</a></li></ul></li><li class="accordion-list" id=""><a href="module-sql_system.html">sql/system</a></li><li class="accordion-list" id=""><a href="module-sql_varsCH_formats.html">sql/varsCH/formats</a></li><li class="accordion-list" id=""><a href="module-sql_varsCH_settings.html">sql/varsCH/settings</a></li><li class="accordion-list" id=""><a href="module-sql_varsCH_types.html">sql/varsCH/types</a></li><li class="accordion-list" id=""><a href="module-structures_tests.html">structures/tests</a></li></ul> </div><div class="accordion collapsed" id="2247686" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=6674102><div class="accordion-heading child"><a href="CHclientExt.html">CHclientExt</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="CHclientExt.html#addFunctionsUDF">addFunctionsUDF</a></li><li data-type='method'><a href="CHclientExt.html#quickTable">quickTable</a></li><li data-type='method'><a href="CHclientExt.html#quickTableMemory">quickTableMemory</a></li><li data-type='method'><a href="CHclientExt.html#replicas_status">replicas_status</a></li></ul></li><li class="accordion collapsed child" id=1349534><div class="accordion-heading child"><a href="module-client.CHclient.html">CHclient</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="module-client.CHclient.html#_afterCreation">_afterCreation</a></li><li data-type='method'><a href="module-client.CHclient.html#_request">_request</a></li><li data-type='method'><a href="module-client.CHclient.html#close">close</a></li><li data-type='method'><a href="module-client.CHclient.html#get">get</a></li><li data-type='method'><a href="module-client.CHclient.html#ping">ping</a></li><li data-type='method'><a href="module-client.CHclient.html#pingMS">pingMS</a></li><li data-type='method'><a href="module-client.CHclient.html#post">post</a></li><li data-type='method'><a href="module-client.CHclient.html#request">request</a></li></ul></li><li class="accordion-list" id=""><a href="module-client-CHclient.html">CHclient</a></li><li class="accordion-list" id=""><a href="module-helpers_errors-ErrAcropolis.html">ErrAcropolis</a></li><li class="accordion-list" id=""><a href="module-solutions_graph-Graph.html">Graph</a></li></ul> </div>
+      
+        <div class="navbar-resize" id="navbar-resize">
+          <div class="resize-dots-container">
+            <div class="dots"></div>
+            <div class="dots"></div>
+            <div class="dots"></div>
+          </div> 
+        </div>
+      
+
+    </nav>
+    <div class="navbar-ham" id="navbar-ham">
+      <div>
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      </div>
+    </div>
+
+    <div id="main" class="main-content">
+      
+      <h1 id='page-title' class="page-title">
+        helpers/transforms
+      </h1>
+      
+
+      
+
+
+
+
+<section>
+
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><div class="nm-desc-module"><p>miscellaneous transformations</p></div></div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="~regex">
+    <a href="#~regex">#</a>
+    <span class="type-signature">(inner, constant) </span>regex<span class="type-signature"></span>
+</h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".bodyValuesToArr2d">
+        <a href="#.bodyValuesToArr2d">#</a>
+        <span class="type-signature">(static) </span>bodyValuesToArr2d<span class="signature">(bodyData)</span><span class="type-signature"> &rarr; {Array}</span>
+    </h4>
+
+    
+        <p class="summary"><div class="nm-summary-constant"><p>in case we want to parse bodyData string when FORMAT = Values
+(not very useful because will need eval to get js values from raw strings)</p>.</div></p>
+    
+
+
+
+    <div class="description">
+        <div class="nm-desc-constant"><p>in case we want to parse bodyData string when FORMAT = Values<br>(not very useful because will need eval to get js values from raw strings)</p></div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>bodyData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>as returned by FORMAT Values</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>values as string ( any, numeric values become strings)</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".castData">
+        <a href="#.castData">#</a>
+        <span class="type-signature">(static) </span>castData<span class="signature">(data, contextArr, fromOrTo<span class="signature-attributes">opt</span>, format)</span><span class="type-signature"> &rarr; {void}</span>
+    </h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>object or array</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>contextArr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>as returned by castTransform</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fromOrTo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    'fromJS'
+                
+                </td>
+            
+
+            <td class="description last"><p>transform direction</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>format</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>one of valid CH formats currently  ['JSON', 'JSONCompact', 'JSONCompactEachRow']</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>mutates data in place</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".castResponse">
+        <a href="#.castResponse">#</a>
+        <span class="type-signature">(static) </span>castResponse<span class="signature">(response, context, options)</span><span class="type-signature"> &rarr; {void}</span>
+    </h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>response</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>a select query response</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>context</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>a context Array as returned by castTransform if undefined will be computed on the fly
+(simplifies things for JSON or JSONCompact formats) for one of transforms for repeated use;
+better evaluate it once by calling castTransform</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>[{ typesJT = coreTypes }={}] a jumpTable (defaults to coreTypes) {type: {toJs, fromJs }};</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>mutates data in place</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".castTransform">
+        <a href="#.castTransform">#</a>
+        <span class="type-signature">(static) </span>castTransform<span class="signature">(response, options)</span><span class="type-signature"> &rarr; {Array}</span>
+    </h4>
+
+    
+        <p class="summary"><div class="nm-summary-constant"><p>generates a transform context from a query response</p>.</div></p>
+    
+
+
+
+    <div class="description">
+        <div class="nm-desc-constant"><p>generates a transform context from a query response</p></div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>response</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>query response as coming
+a) from select body.meta when format = JSONCompact or JSON;
+b) rom DESCRIBE TABLE body.data when format = JSON only</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>[{ typesJT = coreTypes, filterDummy = true, asObj = false }={}] transform options
+typesJT a jumpTable (defaults to coreTypes) {type: {toJs, fromJs }};
+filterDummy it only outputs the columns for which we have toJs &amp;&amp; fromJs functions
+asObj returns an object instead of array;</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>Array if asObj === false else an Object
+return format:
+[
+{ name: 'col_UInt64', idx: 3, baseType: 'UInt64', parms: '', fromJS: [Function: fromJS], toJS: [Function: toJS] },
+{ name: 'col_DateTime64', idx: 18, baseType: 'DateTime64', parms: '3', fromJS: [Function: fromJS], toJS: [Function: toJS] },
+......
+{ name: 'col_ArrInt6432', idx: 21, baseType: 'Int64', parms: 'Array', fromJS: [Function: fromJS], toJS: [Function: toJS] }
+]</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".columnsFromStructArr">
+        <a href="#.columnsFromStructArr">#</a>
+        <span class="type-signature">(static) </span>columnsFromStructArr<span class="signature">(struct)</span><span class="type-signature"> &rarr; {Array}</span>
+    </h4>
+
+    
+        <p class="summary"><div class="nm-summary-constant"><p>extracts an array of column names</p>.</div></p>
+    
+
+
+
+    <div class="description">
+        <div class="nm-desc-constant"><p>extracts an array of column names</p></div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>struct</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>a table structure string i.e.: ( id UInt32, dtCr DateTime) ENGINE = MergeTree</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>column names</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".columnsFromStructStr">
+        <a href="#.columnsFromStructStr">#</a>
+        <span class="type-signature">(static) </span>columnsFromStructStr<span class="signature">(struct)</span><span class="type-signature"> &rarr; {string}</span>
+    </h4>
+
+    
+        <p class="summary"><div class="nm-summary-constant"><p>extracts column names</p>.</div></p>
+    
+
+
+
+    <div class="description">
+        <div class="nm-desc-constant"><p>extracts column names</p></div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>struct</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>a table structure string i.e.: ( id UInt32, dtCr DateTime) ENGINE = MergeTree</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>column names to be used for example in select when format is Values</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".customReplacer">
+        <a href="#.customReplacer">#</a>
+        <span class="type-signature">(static) </span>customReplacer<span class="signature">(key, val)</span><span class="type-signature"> &rarr; {*}</span>
+    </h4>
+
+    
+        <p class="summary"><div class="nm-summary-constant"><p>a quick and dirty replacer so we can stringify to compatible CH types dates
+will work for Date, Date32,DateTime64 and DateTime Types
+under the assumption that Date, Date32 have T00:00:00.000Z;
+❗️ will throw if we try to cast to Date32 || DateTime64 a date with T00:00:00.000Z</p>.</div></p>
+    
+
+
+
+    <div class="description">
+        <div class="nm-desc-constant"><p>a quick and dirty replacer so we can stringify to compatible CH types dates<br>will work for Date, Date32,DateTime64 and DateTime Types<br>under the assumption that Date, Date32 have T00:00:00.000Z;<br>❗️ will throw if we try to cast to Date32 || DateTime64 a date with T00:00:00.000Z</p></div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>array as returned by body.meta on select when FORMAt is JSON or JSONCompact</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>val</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>value to Replace</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>val casted to type</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".dataTransform">
+        <a href="#.dataTransform">#</a>
+        <span class="type-signature">(static) </span>dataTransform<span class="signature">(dataObj, colTypesObj)</span><span class="type-signature"> &rarr; {void}</span>
+    </h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dataObj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>data</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>colTypesObj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>as returned by body.meta on select or body.data on DESCRIBE TABLE;</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>(mutates dataObj in place)</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".JSONstringifyCustom">
+        <a href="#.JSONstringifyCustom">#</a>
+        <span class="type-signature">(static) </span>JSONstringifyCustom<span class="signature">(dataJS)</span><span class="type-signature"> &rarr; {string}</span>
+    </h4>
+
+    
+        <p class="summary"><div class="nm-summary-constant"><p>customized stringify</p>.</div></p>
+    
+
+
+
+    <div class="description">
+        <div class="nm-desc-constant"><p>customized stringify</p></div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dataJS</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>array as returned by body.data on select when FORMAt is JSON or JSONCompact</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>json output</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".metaTrim">
+        <a href="#.metaTrim">#</a>
+        <span class="type-signature">(static) </span>metaTrim<span class="signature">(metaArr)</span><span class="type-signature"> &rarr; {Array2d}</span>
+    </h4>
+
+    
+        <p class="summary"><div class="nm-summary-constant"><p>extracts the underlined type of columns trimming out specifiers (Nullable, Array etc)</p>.</div></p>
+    
+
+
+
+    <div class="description">
+        <div class="nm-desc-constant"><p>extracts the underlined type of columns trimming out specifiers (Nullable, Array etc)</p></div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>metaArr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array2d</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>array of column names as provided by Select body.meta results.meta or DESCRIBE TABLE body.data</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>{columnName, type}</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array2d</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".rxDefaultRowMach">
+        <a href="#.rxDefaultRowMach">#</a>
+        <span class="type-signature">(static) </span>rxDefaultRowMach<span class="signature">(format, onlyKeys)</span><span class="type-signature"> &rarr; {RegExp}</span>
+    </h4>
+
+    
+        <p class="summary"><div class="nm-summary-constant"><p>Default regex for parsing rows when reading from raw body.data text
+Provide a regex for best-effort parsing of raw data.</p></div></p>
+    
+
+
+
+    <div class="description">
+        <div class="nm-desc-constant"><p>Default regex for parsing rows when reading from raw body.data text<br>Provide a regex for best-effort parsing of raw data.<br>Because raw data are not strictly formatted it is difficult to guess tha row shape so<br>So treat it with caution and test it against your actual data as it is error prone especially<br>when data include columns of multiline strings that include special characters as (,), {,}<br>Least error prone formats are derivatives of JSON and Values with CSV TSV the most unstable<br>here are some benchmark results for reference<br>JSONCompactEachRow   rows: 1000000: 10.593s<br>JSONEachRow          rows: 1000000: 16.988s  (with JSON.stringify =&gt; parse)<br>Values               rows: 1000000: 10.582s<br>CSV                  rows: 1000000: 11.007s<br>TSV                  rows: 1000000: 10.849s</p></div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>format</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>clickhouse format</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onlyKeys</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>ignores format and returns just supported keys (mainly for testing)</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>a regex expression</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">RegExp</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".typesFromMeta">
+        <a href="#.typesFromMeta">#</a>
+        <span class="type-signature">(static) </span>typesFromMeta<span class="signature">(metaArr)</span><span class="type-signature"> &rarr; {Object}</span>
+    </h4>
+
+    
+        <p class="summary"><div class="nm-summary-constant"><p>extracts the underlined type of columns trimming out specifiers (Nullable, Array etc)</p>.</div></p>
+    
+
+
+
+    <div class="description">
+        <div class="nm-desc-constant"><p>extracts the underlined type of columns trimming out specifiers (Nullable, Array etc)</p></div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>metaArr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array2d</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>array of column names as provided by Select results.meta</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
+        
+            
+<div class="param-desc">
+    <p>{columnName, type}</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+            
+    </div>
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+    </div>
+
+    <footer class="footer" id="footer">
+      Fork: <a href='https://github.com/nickmilon/acropolis-ch'>https://github.com/nickmilon/acropolis-ch</a>
+    </footer>
+
+    <script src="scripts/third-party/prettify.js"></script>
+    <script src="scripts/third-party/lang-css.js"></script>
+    <script type="text/javascript" src="scripts/misc.js"></script>
+
+    <script>prettyPrint();</script>
+    <script src="scripts/linenumber.js"></script>
+    <script src="scripts/fix-code-block.js"></script>
+    <script src="scripts/fix-navbar.js"></script>
+    
+      <script src="scripts/search.js"></script>
+      <script src="scripts/third-party/fuse.js"></script>
+      <script>
+        var list = [{"title":"client","link":"<a href=\"module-client.html\">client</a>"},{"title":"context","link":"<a href=\"module-context.html\">context</a>"},{"title":"module:context.contextStatementsAppend","link":"<a href=\"module-context.html#.contextStatementsAppend\">module:context.contextStatementsAppend &rtrif; undefined</a>"},{"title":"module:context.contextStatementsGet","link":"<a href=\"module-context.html#.contextStatementsGet\">module:context.contextStatementsGet &rtrif; undefined</a>"},{"title":"module:context.contextStatementsSet","link":"<a href=\"module-context.html#.contextStatementsSet\">module:context.contextStatementsSet &rtrif; undefined</a>"},{"title":"helpers/errors","link":"<a href=\"module-helpers_errors.html\">helpers/errors</a>"},{"title":"helpers/streams","link":"<a href=\"module-helpers_streams.html\">helpers/streams</a>"},{"title":"helpers/transforms","link":"<a href=\"module-helpers_transforms.html\">helpers/transforms</a>"},{"title":"module:helpers/transforms.bodyValuesToArr2d","link":"<a href=\"module-helpers_transforms.html#.bodyValuesToArr2d\">module:helpers/transforms.bodyValuesToArr2d &rtrif; undefined</a>"},{"title":"module:helpers/transforms.castData","link":"<a href=\"module-helpers_transforms.html#.castData\">module:helpers/transforms.castData &rtrif; undefined</a>"},{"title":"module:helpers/transforms.castResponse","link":"<a href=\"module-helpers_transforms.html#.castResponse\">module:helpers/transforms.castResponse &rtrif; undefined</a>"},{"title":"module:helpers/transforms.castTransform","link":"<a href=\"module-helpers_transforms.html#.castTransform\">module:helpers/transforms.castTransform &rtrif; undefined</a>"},{"title":"module:helpers/transforms.columnsFromStructArr","link":"<a href=\"module-helpers_transforms.html#.columnsFromStructArr\">module:helpers/transforms.columnsFromStructArr &rtrif; undefined</a>"},{"title":"module:helpers/transforms.columnsFromStructStr","link":"<a href=\"module-helpers_transforms.html#.columnsFromStructStr\">module:helpers/transforms.columnsFromStructStr &rtrif; undefined</a>"},{"title":"module:helpers/transforms.customReplacer","link":"<a href=\"module-helpers_transforms.html#.customReplacer\">module:helpers/transforms.customReplacer &rtrif; undefined</a>"},{"title":"module:helpers/transforms.dataTransform","link":"<a href=\"module-helpers_transforms.html#.dataTransform\">module:helpers/transforms.dataTransform &rtrif; undefined</a>"},{"title":"module:helpers/transforms.JSONstringifyCustom","link":"<a href=\"module-helpers_transforms.html#.JSONstringifyCustom\">module:helpers/transforms.JSONstringifyCustom &rtrif; undefined</a>"},{"title":"module:helpers/transforms.metaTrim","link":"<a href=\"module-helpers_transforms.html#.metaTrim\">module:helpers/transforms.metaTrim &rtrif; undefined</a>"},{"title":"module:helpers/transforms.rxDefaultRowMach","link":"<a href=\"module-helpers_transforms.html#.rxDefaultRowMach\">module:helpers/transforms.rxDefaultRowMach &rtrif; undefined</a>"},{"title":"module:helpers/transforms.typesFromMeta","link":"<a href=\"module-helpers_transforms.html#.typesFromMeta\">module:helpers/transforms.typesFromMeta &rtrif; undefined</a>"},{"title":"solutions/graph","link":"<a href=\"module-solutions_graph.html\">solutions/graph</a>"},{"title":"solutions/graphSimulation","link":"<a href=\"module-solutions_graphSimulation.html\">solutions/graphSimulation</a>"},{"title":"solutions/graphSql","link":"<a href=\"module-solutions_graphSql.html\">solutions/graphSql</a>"},{"title":"solutions/pagination","link":"<a href=\"module-solutions_pagination.html\">solutions/pagination</a>"},{"title":"sql/auxillary","link":"<a href=\"module-sql_auxillary.html\">sql/auxillary</a>"},{"title":"module:sql/auxillary.tableStructure","link":"<a href=\"module-sql_auxillary.html#.tableStructure\">module:sql/auxillary.tableStructure &rtrif; undefined</a>"},{"title":"sql/basic","link":"<a href=\"module-sql_basic.html\">sql/basic</a>"},{"title":"module:sql/basic.ALTER_TABLE_DELETE","link":"<a href=\"module-sql_basic.html#.ALTER_TABLE_DELETE\">module:sql/basic.ALTER_TABLE_DELETE &rtrif; undefined</a>"},{"title":"module:sql/basic.ALTER_TABLE_UPDATE","link":"<a href=\"module-sql_basic.html#.ALTER_TABLE_UPDATE\">module:sql/basic.ALTER_TABLE_UPDATE &rtrif; undefined</a>"},{"title":"module:sql/basic.CREATE_DATABASE","link":"<a href=\"module-sql_basic.html#.CREATE_DATABASE\">module:sql/basic.CREATE_DATABASE &rtrif; undefined</a>"},{"title":"module:sql/basic.CREATE_TABLE_fromSchema","link":"<a href=\"module-sql_basic.html#.CREATE_TABLE_fromSchema\">module:sql/basic.CREATE_TABLE_fromSchema &rtrif; undefined</a>"},{"title":"module:sql/basic.CREATE_TABLE_fromSelect","link":"<a href=\"module-sql_basic.html#.CREATE_TABLE_fromSelect\">module:sql/basic.CREATE_TABLE_fromSelect &rtrif; undefined</a>"},{"title":"module:sql/basic.CREATE_TABLE_fromTb","link":"<a href=\"module-sql_basic.html#.CREATE_TABLE_fromTb\">module:sql/basic.CREATE_TABLE_fromTb &rtrif; undefined</a>"},{"title":"module:sql/basic.DESC","link":"<a href=\"module-sql_basic.html#.DESC\">module:sql/basic.DESC &rtrif; undefined</a>"},{"title":"module:sql/basic.DROP_DATABASE","link":"<a href=\"module-sql_basic.html#.DROP_DATABASE\">module:sql/basic.DROP_DATABASE &rtrif; undefined</a>"},{"title":"module:sql/basic.DROP_TABLE","link":"<a href=\"module-sql_basic.html#.DROP_TABLE\">module:sql/basic.DROP_TABLE &rtrif; undefined</a>"},{"title":"module:sql/basic.EXISTS","link":"<a href=\"module-sql_basic.html#.EXISTS\">module:sql/basic.EXISTS &rtrif; undefined</a>"},{"title":"module:sql/basic.INSERT_INTO","link":"<a href=\"module-sql_basic.html#.INSERT_INTO\">module:sql/basic.INSERT_INTO &rtrif; undefined</a>"},{"title":"module:sql/basic.INSERT_INTO_JSONEachRow","link":"<a href=\"module-sql_basic.html#.INSERT_INTO_JSONEachRow\">module:sql/basic.INSERT_INTO_JSONEachRow &rtrif; undefined</a>"},{"title":"module:sql/basic.OPTIMIZE_TABLE","link":"<a href=\"module-sql_basic.html#.OPTIMIZE_TABLE\">module:sql/basic.OPTIMIZE_TABLE &rtrif; undefined</a>"},{"title":"module:sql/basic.rawSql","link":"<a href=\"module-sql_basic.html#.rawSql\">module:sql/basic.rawSql &rtrif; undefined</a>"},{"title":"module:sql/basic.SHOW_CREATE","link":"<a href=\"module-sql_basic.html#.SHOW_CREATE\">module:sql/basic.SHOW_CREATE &rtrif; undefined</a>"},{"title":"module:sql/basic.TRUNCATE_TABLE","link":"<a href=\"module-sql_basic.html#.TRUNCATE_TABLE\">module:sql/basic.TRUNCATE_TABLE &rtrif; undefined</a>"},{"title":"sql/fragments","link":"<a href=\"module-sql_fragments.html\">sql/fragments</a>"},{"title":"module:sql/fragments.formatOrJSON","link":"<a href=\"module-sql_fragments.html#.formatOrJSON\">module:sql/fragments.formatOrJSON &rtrif; undefined</a>"},{"title":"module:sql/fragments.limitOffset","link":"<a href=\"module-sql_fragments.html#.limitOffset\">module:sql/fragments.limitOffset &rtrif; undefined</a>"},{"title":"module:sql/fragments.nameSpace","link":"<a href=\"module-sql_fragments.html#.nameSpace\">module:sql/fragments.nameSpace &rtrif; undefined</a>"},{"title":"module:sql/fragments.nameSpaceOrTb","link":"<a href=\"module-sql_fragments.html#.nameSpaceOrTb\">module:sql/fragments.nameSpaceOrTb &rtrif; undefined</a>"},{"title":"module:sql/fragments.sqlPrettify","link":"<a href=\"module-sql_fragments.html#.sqlPrettify\">module:sql/fragments.sqlPrettify &rtrif; undefined</a>"},{"title":"module:sql/fragments.strIfK","link":"<a href=\"module-sql_fragments.html#.strIfK\">module:sql/fragments.strIfK &rtrif; undefined</a>"},{"title":"module:sql/fragments.strIfKV","link":"<a href=\"module-sql_fragments.html#.strIfKV\">module:sql/fragments.strIfKV &rtrif; undefined</a>"},{"title":"module:sql/fragments.strK","link":"<a href=\"module-sql_fragments.html#.strK\">module:sql/fragments.strK &rtrif; undefined</a>"},{"title":"module:sql/fragments.strKOperatorV","link":"<a href=\"module-sql_fragments.html#.strKOperatorV\">module:sql/fragments.strKOperatorV &rtrif; undefined</a>"},{"title":"module:sql/fragments.strKV","link":"<a href=\"module-sql_fragments.html#.strKV\">module:sql/fragments.strKV &rtrif; undefined</a>"},{"title":"module:sql/fragments.tbStruct","link":"<a href=\"module-sql_fragments.html#.tbStruct\">module:sql/fragments.tbStruct &rtrif; undefined</a>"},{"title":"module:sql/fragments.tbStructParens","link":"<a href=\"module-sql_fragments.html#.tbStructParens\">module:sql/fragments.tbStructParens &rtrif; undefined</a>"},{"title":"module:sql/fragments.tbStructParse","link":"<a href=\"module-sql_fragments.html#.tbStructParse\">module:sql/fragments.tbStructParse &rtrif; undefined</a>"},{"title":"module:sql/fragments.tbStructParseObj","link":"<a href=\"module-sql_fragments.html#.tbStructParseObj\">module:sql/fragments.tbStructParseObj &rtrif; undefined</a>"},{"title":"module:sql/fragments.vectorToOrderLimit","link":"<a href=\"module-sql_fragments.html#.vectorToOrderLimit\">module:sql/fragments.vectorToOrderLimit &rtrif; undefined</a>"},{"title":"sql/functionsUDF","link":"<a href=\"module-sql_functionsUDF.html\">sql/functionsUDF</a>"},{"title":"sql/select","link":"<a href=\"module-sql_select.html\">sql/select</a>"},{"title":"module:sql/select.limitOffset","link":"<a href=\"module-sql_select.html#.limitOffset\">module:sql/select.limitOffset &rtrif; undefined</a>"},{"title":"module:sql/select.SELECTraw","link":"<a href=\"module-sql_select.html#.SELECTraw\">module:sql/select.SELECTraw &rtrif; undefined</a>"},{"title":"sql/system","link":"<a href=\"module-sql_system.html\">sql/system</a>"},{"title":"sql/varsCH/formats","link":"<a href=\"module-sql_varsCH_formats.html\">sql/varsCH/formats</a>"},{"title":"sql/varsCH/settings","link":"<a href=\"module-sql_varsCH_settings.html\">sql/varsCH/settings</a>"},{"title":"sql/varsCH/types","link":"<a href=\"module-sql_varsCH_types.html\">sql/varsCH/types</a>"},{"title":"structures/tests","link":"<a href=\"module-structures_tests.html\">structures/tests</a>"},{"title":"CHclientExt","link":"<a href=\"CHclientExt.html\">CHclientExt</a>"},{"title":"CHclientExt#addFunctionsUDF","link":"<a href=\"CHclientExt.html#addFunctionsUDF\">CHclientExt &rtrif; addFunctionsUDF</a>"},{"title":"CHclientExt#quickTable","link":"<a href=\"CHclientExt.html#quickTable\">CHclientExt &rtrif; quickTable</a>"},{"title":"CHclientExt#quickTableMemory","link":"<a href=\"CHclientExt.html#quickTableMemory\">CHclientExt &rtrif; quickTableMemory</a>"},{"title":"CHclientExt#replicas_status","link":"<a href=\"CHclientExt.html#replicas_status\">CHclientExt &rtrif; replicas_status</a>"},{"title":"CHclient","link":"<a href=\"module-client.CHclient.html\">CHclient</a>"},{"title":"module:client.CHclient#_afterCreation","link":"<a href=\"module-client.CHclient.html#_afterCreation\">module:client.CHclient &rtrif; _afterCreation</a>"},{"title":"module:client.CHclient#_request","link":"<a href=\"module-client.CHclient.html#_request\">module:client.CHclient &rtrif; _request</a>"},{"title":"module:client.CHclient#close","link":"<a href=\"module-client.CHclient.html#close\">module:client.CHclient &rtrif; close</a>"},{"title":"module:client.CHclient#get","link":"<a href=\"module-client.CHclient.html#get\">module:client.CHclient &rtrif; get</a>"},{"title":"module:client.CHclient#ping","link":"<a href=\"module-client.CHclient.html#ping\">module:client.CHclient &rtrif; ping</a>"},{"title":"module:client.CHclient#pingMS","link":"<a href=\"module-client.CHclient.html#pingMS\">module:client.CHclient &rtrif; pingMS</a>"},{"title":"module:client.CHclient#post","link":"<a href=\"module-client.CHclient.html#post\">module:client.CHclient &rtrif; post</a>"},{"title":"module:client.CHclient#request","link":"<a href=\"module-client.CHclient.html#request\">module:client.CHclient &rtrif; request</a>"},{"title":"CHclient","link":"<a href=\"module-client-CHclient.html\">CHclient</a>"},{"title":"ErrAcropolis","link":"<a href=\"module-helpers_errors-ErrAcropolis.html\">ErrAcropolis</a>"},{"title":"Graph","link":"<a href=\"module-solutions_graph-Graph.html\">Graph</a>"}];
+        var options = {"shouldSort":true,"threshold":0.4,"location":0,"distance":100,"maxPatternLength":32,"minMatchCharLength":1}
+          setupSearch(list, options)
+      </script>
+    
+
+    
+
+    
+      <script src="scripts/resize.js"></script>
+      <script type="text/javascript">
+        var option = {"min":"300","max":"600"}
+        setupResizeOptions(option)
+      </script>
+    
+
+    
+
+
+  </body>
+
+</html>
