@@ -1,0 +1,46 @@
+a {
+   color: rgb(29, 155, 240);
+}
+.documentation {
+    background: #111;
+    color: #ffffff;
+}
+
+.documentation h3 { /* top left project title */
+    background-color: inherit;  
+    color:inherit;
+}
+
+.bg-white {
+    background-color: inherit;
+}
+
+.fill-light {
+    background-color: #333 ;
+}
+
+.gutter-horizontal {
+    background-color:  #444;
+}
+
+.quiet {
+    opacity: 0.9;
+}
+.border-bottom {
+    border-color: #555;
+}
+.minishadow {
+    box-shadow: 2px 2px 4px #838383; /* box-shadow: 2px 2px 10px #f3f3f3; */
+}
+
+#split-left {
+    background-color:  #222;
+}
+
+ #filter-input {
+    background-color:  #000;
+    color:white;
+}
+
+ 
+ 
