@@ -149,5 +149,10 @@ You can limit output verbosity by setting logLevel variable in acropolis-ch-conf
 - For any suggestions, questions or bugs, feel free to create an <a href="https://github.com/nickmilon/acropolis-ch/issues">issue</a>
 ___
 ## 📖 Awesome Resources and further reading:
-- [see here](resources/awesome.md)
+- [see here](resources/awesome.html)
+- [to github](https://github.com/nickmilon/acropolis-ch/blob/docs/docs/resources/awesome.md)
 ___
+
+https://github.com/nickmilon/acropolis-ch/blob/docs/docs/resources/awesome.md 
+
+https://nickmilon.github.io/acropolis-ch/resources/awesome.md

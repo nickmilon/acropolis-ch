@@ -9,10 +9,8 @@
     "usageREPL": "NODE_OPTIONS='--experimental-vm-modules --experimental-repl-await'  scripts/usageREPL.js",
     "twt-sample-download": "scripts/download-sample.sh",
     "twt-data-import": "scripts/twt-data-import.js",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "test1": "NODE_OPTIONS='--experimental-vm-modules' jest -t 'test1'",
-    "testNM": "jest  -t 'test1'",
-    "testWatch": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles --watch",
+    "tests": "node --test",
+    "tests-verbose": "node test/test-01.js log && node test/test-02.js log  && node test/test-03.js log",
     "DEL_2postinstall": "ls -la $NODE_PATH > del.txt",
     "DEL_1postinstall": "cp -u $NODE_PATH/acropolis-ch/acropolis-ch-conf.js $INIT_CWD",
     "postinstall": "cp -u $INIT_CWD/node_modules/acropolis-ch/acropolis-ch-conf.js $INIT_CWD"

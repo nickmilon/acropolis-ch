@@ -36,3 +36,8 @@ SELECT randomASCII(2)  Exception: Unknown function randomASCII: While processing
     while in https://clickhouse.com/docs/en/whats-new/changelog/2020/#new-feature-13  it says it is added 
     and migrated https://github.com/ClickHouse/ClickHouse/issues/5318
     but randomString(3) works !
+
+on test-01 checkDecoding
+    while random Code: 60. DB::Exception: Table testCH.objRndFlat doesn't exist. (UNKNOWN_TABLE) (version 23.4.2.11 (official build))\n"
+    things I tried:
+        for format at formats (to make it seqencial) instead of promise.all

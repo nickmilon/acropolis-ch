@@ -1,5 +1,7 @@
 ## 📖 Resources and further reading:
 ### Clickhouse:
+-   Tools
+    - [clickhouse backup](https://github.com/AlexAkulov/clickhouse-backup)
 -   Social Media
     - [reddit](https://www.reddit.com/r/Clickhouse/)
     - [telegram clickhouse english](https://telegram.me/clickhouse_en)
@@ -7,10 +9,12 @@
 -   Guides:
     - [official manual](https://clickhouse.com/docs/en/)
     - [github](https://github.com/ClickHouse/)
+    - [starter guide](https://anthonynsimon.com/blog/clickhouse-deployment/)
     - [coming from postgres](https://guides.tinybird.co/guide/postgres-to-clickhouse)
     - [huawei cloud:Big Data MR service Using ClickHouse](https://support.huaweicloud.com/intl/en-us/eu-west-0-cmpntguide-mrs/mrs_01_2345.html)
 
 -   Community, ecosystem, groups, blogs:
+    - [official slack channel feel free to join](http://clickhouse.com/slack)
     - [clickhouse Google Groups](https://groups.google.com/g/clickhouse)
     - [clickhouse blog](https://clickhouse.com/blog/en/2021/clickhouse-inc/)
     - [Instana](https://www.instana.com/blog/)
@@ -21,12 +25,12 @@
     - [blog chistadata](https://chistadata.com/blog/)
     - [Log analytics using ClickHouse](https://blog.cloudflare.com/log-analytics-using-clickhouse/)
 
-   
-
     - [twitter official clickhouse @ClickHouseDB ]( https://twitter.com/ClickHouseDB)
     - [twitter @chistadata ](https://twitter.com/chistadata)
 
-
+    Integracion with other systems
+    - [yandex YTsaurus](https://medium.com/yandex/ytsaurus-exabyte-scale-storage-and-processing-system-is-now-open-source-42e7f5fa5fc6)
+    - [yandex YTsaurus Github](https://github.com/YTsaurus/YTsaurus)
 -   github
     - actions
         -  [clickhouse-db-cluster](https://github.com/vishnudxb/clickhouse-db-cluster)

@@ -32,8 +32,10 @@ class ScrollOnColumn extends PageScroll {
   }
 }
 
+console.dir(process.argv)
 const prettyLog = (data, comments) => `----- ${comments}-----\n${data}`;
  
+
 const logger = (Object.keys(ConLog.levels).includes(process.argv.at(2) )) ? 
     new ConLog(process.argv[2], { inclTS: true, inspectDefaults: {colors: true} }) : consolDummy
  
